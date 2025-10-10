@@ -66,7 +66,8 @@ impl<Tab> DockArea<'_, Tab> {
     pub fn show_inside(mut self, ui: &mut Ui, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
         self.style
             .get_or_insert(Style::from_egui(ui.style().as_ref()));
-        self.window_bounds.get_or_insert(ui.ctx().screen_rect());
+    // Use the non-deprecated content rect for window bounds
+    self.window_bounds.get_or_insert(ui.ctx().content_rect());
 
         let mut state = State::load(ui.ctx(), self.id);
 
@@ -314,15 +315,19 @@ impl<Tab> DockArea<'_, Tab> {
     ) {
         // First compute all rect sizes in the node graph.
         let max_rect = self.allocate_area_for_root_node(ui, surf_index);
-        for node_index in self.dock_state[surf_index].breadth_first_index_iter() {
-            if self.dock_state[surf_index][node_index].is_parent() {
+        let indices: Vec<NodeIndex> =
+            self.dock_state[surf_index].breadth_first_index_iter().collect();
+        for &node_index in &indices {
+            let is_parent = self.dock_state[surf_index][node_index].is_parent();
+            if is_parent {
                 self.compute_rect_sizes(ui, (surf_index, node_index), max_rect);
             }
         }
 
         // Then, draw the bodies of each leaves.
-        for node_index in self.dock_state[surf_index].breadth_first_index_iter() {
-            if self.dock_state[surf_index][node_index].is_leaf() {
+        for &node_index in &indices {
+            let is_leaf = self.dock_state[surf_index][node_index].is_leaf();
+            if is_leaf {
                 self.show_leaf(ui, state, (surf_index, node_index), tab_viewer, fade_style);
             }
         }
@@ -330,8 +335,9 @@ impl<Tab> DockArea<'_, Tab> {
         // Finally, draw separators so that their "interaction zone" is above
         // bodies (see `SeparatorStyle::extra_interact_width`).
         let fade_style = fade_style.map(|(style, _)| style);
-        for node_index in self.dock_state[surf_index].breadth_first_index_iter() {
-            if self.dock_state[surf_index][node_index].is_parent() {
+        for &node_index in &indices {
+            let is_parent = self.dock_state[surf_index][node_index].is_parent();
+            if is_parent {
                 self.show_separator(ui, (surf_index, node_index), fade_style);
             }
         }

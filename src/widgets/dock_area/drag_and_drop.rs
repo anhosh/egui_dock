@@ -451,12 +451,12 @@ fn draw_window_rect(rect: Rect, ui: &Ui, style: &Style) {
 fn constrain_rect_to_area(ui: &Ui, rect: Rect, mut bounds: Rect) -> Rect {
     if rect.width() > bounds.width() {
         // Allow overlapping side bars.
-        let screen_rect = ui.ctx().screen_rect();
+    let screen_rect = ui.ctx().content_rect();
         (bounds.min.x, bounds.max.x) = (screen_rect.min.x, screen_rect.max.x);
     }
     if rect.height() > bounds.height() {
         // Allow overlapping top/bottom bars:
-        let screen_rect = ui.ctx().screen_rect();
+    let screen_rect = ui.ctx().content_rect();
         (bounds.min.y, bounds.max.y) = (screen_rect.min.y, screen_rect.max.y);
     }
 

@@ -52,7 +52,7 @@ macro_rules! unit_slider {
 }
 
 fn main() -> eframe::Result<()> {
-    std::env::set_var("RUST_BACKTRACE", "1");
+    unsafe { std::env::set_var("RUST_BACKTRACE", "1") };
     let options = NativeOptions {
         viewport: ViewportBuilder::default().with_inner_size(vec2(1024.0, 1024.0)),
         ..Default::default()
