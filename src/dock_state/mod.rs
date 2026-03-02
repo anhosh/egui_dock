@@ -237,7 +237,13 @@ impl<Tab> DockState<Tab> {
                         self[dst_surface].split(dst_node, split, 0.5, Node::leaf(tab));
                     }
 
-                    TabInsert::Insert(index) => self[dst_surface][dst_node].insert_tab(index, tab),
+                    TabInsert::Insert(index) => {
+                        // Clamp index to valid range: after remove_tab the node may have fewer tabs
+                        // than the original index (e.g. when reordering within the same node).
+                        let count = self[dst_surface][dst_node].tabs_count();
+                        let clamped = if index.0 > count { TabIndex(count) } else { index };
+                        self[dst_surface][dst_node].insert_tab(clamped, tab);
+                    }
                     TabInsert::Append => self[dst_surface][dst_node].append_tab(tab),
                 }
             }
