@@ -448,7 +448,13 @@ impl<Tab> DockArea<'_, Tab> {
                 debug_assert!(!rect.any_nan() && rect.is_finite());
                 let rect = expand_to_pixel(rect, pixels_per_point);
 
-                let midpoint = rect.min.dim_point + rect.dim_size() * split.fraction;
+                let dim_size = rect.dim_size();
+                let midpoint = if dim_size > 0.0 {
+                    rect.min.dim_point + dim_size * split.fraction
+                } else {
+                    rect.min.dim_point
+                };
+
                 let left_separator_border = map_to_pixel(
                     midpoint - style.separator.width * 0.5,
                     pixels_per_point,
@@ -566,11 +572,13 @@ impl<Tab> DockArea<'_, Tab> {
                 // otherwise it may overlap on other separator / bodies when
                 // shrunk fast.
                 let range = rect.max.dim_point - rect.min.dim_point;
-                let min = (style.separator.extra / range).min(1.0);
-                let max = 1.0 - min;
-                let (min, max) = (min.min(max), max.max(min));
-                let delta = arrow_key_offset.unwrap_or(response.drag_delta()).dim_point;
-                split.fraction = (split.fraction + delta / range).clamp(min, max);
+                if range > 0.0 {
+                    let min = (style.separator.extra / range).min(1.0);
+                    let max = 1.0 - min;
+                    let (min, max) = (min.min(max), max.max(min));
+                    let delta = arrow_key_offset.unwrap_or(response.drag_delta()).dim_point;
+                    split.fraction = (split.fraction + delta / range).clamp(min, max);
+                }
 
                 if response.double_clicked() {
                     split.fraction = 0.5;
