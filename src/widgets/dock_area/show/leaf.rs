@@ -34,6 +34,11 @@ impl<Tab> DockArea<'_, Tab> {
         let rect = self.dock_state[surface_index][node_index]
             .rect()
             .expect("This node must be a leaf");
+
+        if rect.width() <= 0.0 || rect.height() <= 0.0 {
+            return;
+        }
+
         let ui = &mut ui.new_child(
             UiBuilder::new()
                 .max_rect(rect)
@@ -1101,7 +1106,9 @@ impl<Tab> DockArea<'_, Tab> {
         tab_hovered: bool,
         fade_style: Option<&Style>,
     ) {
-        assert_ne!(available_width, 0.0);
+        if available_width <= 0.0 {
+            return;
+        }
 
         let leaf = self.dock_state[surface_index][node_index]
             .get_leaf_mut()
