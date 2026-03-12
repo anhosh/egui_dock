@@ -1,3 +1,5 @@
+use std::ops;
+
 use egui::Rect;
 
 use crate::TabIndex;
@@ -139,5 +141,19 @@ impl<Tab> LeafNode<Tab> {
         self.tabs
             .get_mut(self.active.0)
             .map(|tab| (self.viewport, tab))
+    }
+}
+
+impl<Tab> ops::Index<TabIndex> for LeafNode<Tab> {
+    type Output = Tab;
+
+    fn index(&self, index: TabIndex) -> &Tab {
+        &self.tabs[index.0]
+    }
+}
+
+impl<Tab> ops::IndexMut<TabIndex> for LeafNode<Tab> {
+    fn index_mut(&mut self, index: TabIndex) -> &mut Tab {
+        &mut self.tabs[index.0]
     }
 }
