@@ -8,6 +8,7 @@ use std::ops::RangeInclusive;
 
 use crate::dock_area::tab_removal::{ForcedRemoval, TabRemoval};
 use crate::node::LeafNode;
+use crate::NodePath;
 use crate::{
     dock_area::{
         drag_and_drop::{DragData, DragDropState, HoverData, TreeComponent},
@@ -24,33 +25,33 @@ impl<Tab> DockArea<'_, Tab> {
         &mut self,
         ui: &mut Ui,
         state: &mut State,
-        (surface_index, node_index): (SurfaceIndex, NodeIndex),
+        path: NodePath,
         tab_viewer: &mut impl TabViewer<Tab = Tab>,
         fade_style: Option<(&Style, f32)>,
     ) {
-        assert!(self.dock_state[surface_index][node_index].is_leaf());
-        let collapsed = self.dock_state[surface_index][node_index].is_collapsed();
+        assert!(self.dock_state[path].is_leaf());
+        let collapsed = self.dock_state[path].is_collapsed();
 
-        let rect = self.dock_state[surface_index][node_index]
+        let rect = self.dock_state[path]
             .rect()
             .expect("This node must be a leaf");
         let ui = &mut ui.new_child(
             UiBuilder::new()
                 .max_rect(rect)
                 .layout(Layout::top_down_justified(Align::Min))
-                .id_salt((node_index, "node")),
+                .id_salt((path.node, "node")),
         );
         let spacing = ui.spacing().item_spacing;
         ui.spacing_mut().item_spacing = Vec2::ZERO;
         ui.set_clip_rect(rect);
 
-        if self.dock_state[surface_index][node_index].tabs_count() == 0 {
+        if self.dock_state[path].tabs_count() == 0 {
             return;
         }
         let tabbar_rect = self.tab_bar(
             ui,
             state,
-            (surface_index, node_index),
+            path,
             tab_viewer,
             fade_style.map(|(style, _)| style),
             collapsed,
@@ -58,7 +59,7 @@ impl<Tab> DockArea<'_, Tab> {
         self.tab_body(
             ui,
             state,
-            (surface_index, node_index),
+            path,
             tab_viewer,
             spacing,
             tabbar_rect,
@@ -66,15 +67,13 @@ impl<Tab> DockArea<'_, Tab> {
             collapsed,
         );
 
-        let tabs = self.dock_state[surface_index][node_index]
+        let tabs = self.dock_state[path]
             .tabs_mut()
             .expect("This node must be a leaf here");
         for (tab_index, tab) in tabs.iter_mut().enumerate() {
             if tab_viewer.force_close(tab) {
                 self.to_remove.push(TabRemoval::Tab(
-                    surface_index,
-                    node_index,
-                    TabIndex(tab_index),
+                    (path, TabIndex(tab_index)).into(),
                     ForcedRemoval(true),
                 ));
             }
@@ -85,12 +84,12 @@ impl<Tab> DockArea<'_, Tab> {
         &mut self,
         ui: &mut Ui,
         state: &mut State,
-        (surface_index, node_index): (SurfaceIndex, NodeIndex),
+        path: NodePath,
         tab_viewer: &mut impl TabViewer<Tab = Tab>,
         fade_style: Option<&Style>,
         collapsed: bool,
     ) -> Rect {
-        assert!(self.dock_state[surface_index][node_index].is_leaf());
+        assert!(self.dock_state[path].is_leaf());
 
         let style = fade_style.unwrap_or_else(|| self.style.as_ref().unwrap());
         let (tabbar_outer_rect, tabbar_response) = ui.allocate_exact_size(
@@ -126,8 +125,9 @@ impl<Tab> DockArea<'_, Tab> {
         }
 
         let (actual_width, tab_hovered) = {
-            let leaf = self.dock_state[surface_index][node_index]
-                .get_leaf_mut()
+            let leaf = self
+                .dock_state
+                .leaf_mut(path)
                 .expect("This node must be a leaf");
 
             let tabbar_inner_rect = Rect::from_min_size(
@@ -167,7 +167,7 @@ impl<Tab> DockArea<'_, Tab> {
             let tab_hovered = self.tabs(
                 tabs_ui,
                 state,
-                (surface_index, node_index),
+                path,
                 tab_viewer,
                 tabbar_outer_rect,
                 prefered_width,
@@ -196,27 +196,20 @@ impl<Tab> DockArea<'_, Tab> {
                 } else {
                     0.0
                 };
-                self.tab_plus(
-                    ui,
-                    surface_index,
-                    node_index,
-                    tab_viewer,
-                    tabbar_outer_rect,
-                    offset,
-                    fade_style,
-                );
+                self.tab_plus(ui, path, tab_viewer, tabbar_outer_rect, offset, fade_style);
             }
 
             if self.show_leaf_close_all_buttons {
                 // Current leaf contains non-closable tabs.
-                let disabled = self.dock_state[surface_index][node_index]
-                    .get_leaf_mut()
+                let disabled = self
+                    .dock_state
+                    .leaf_mut(path)
                     .map(|leaf| !leaf.tabs.iter_mut().all(|tab| tab_viewer.is_closeable(tab)))
                     .expect("This node must be a leaf");
 
                 // Current window contains non-closable tabs.
                 let close_window_disabled = disabled
-                    || !self.dock_state[surface_index].iter_mut().all(|node| {
+                    || !self.dock_state[path.surface].iter_mut().all(|node| {
                         node.get_leaf_mut().is_none_or(|leaf| {
                             leaf.tabs.iter_mut().all(|tab| tab_viewer.is_closeable(tab))
                         })
@@ -224,8 +217,7 @@ impl<Tab> DockArea<'_, Tab> {
 
                 self.tab_close_all(
                     ui,
-                    surface_index,
-                    node_index,
+                    path,
                     tabbar_outer_rect,
                     fade_style,
                     disabled,
@@ -234,14 +226,7 @@ impl<Tab> DockArea<'_, Tab> {
             }
 
             if self.show_leaf_collapse_buttons {
-                self.tab_collapse(
-                    ui,
-                    surface_index,
-                    node_index,
-                    tabbar_outer_rect,
-                    fade_style,
-                    collapsed,
-                )
+                self.tab_collapse(ui, path, tabbar_outer_rect, fade_style, collapsed)
             }
 
             (tabs_ui.min_rect().width(), tab_hovered)
@@ -250,7 +235,7 @@ impl<Tab> DockArea<'_, Tab> {
         self.tab_bar_scroll(
             ui,
             state,
-            (surface_index, node_index),
+            path,
             actual_width,
             available_width,
             scroll_bar_width,
@@ -267,7 +252,7 @@ impl<Tab> DockArea<'_, Tab> {
         &mut self,
         tabs_ui: &mut Ui,
         state: &mut State,
-        (surface_index, node_index): (SurfaceIndex, NodeIndex),
+        path: NodePath,
         tab_viewer: &mut impl TabViewer<Tab = Tab>,
         tabbar_outer_rect: Rect,
         preferred_width: Option<f32>,
@@ -275,11 +260,11 @@ impl<Tab> DockArea<'_, Tab> {
     ) -> bool {
         let mut tab_hovered = false;
 
-        assert!(self.dock_state[surface_index][node_index].is_leaf());
+        assert!(self.dock_state[path].is_leaf());
 
         let focused = self.dock_state.focused_leaf();
         let tabs_len = {
-            let tabs = self.dock_state[surface_index][node_index]
+            let tabs = self.dock_state[path]
                 .tabs()
                 .expect("This node must be a leaf here");
             tabs.len()
@@ -288,8 +273,8 @@ impl<Tab> DockArea<'_, Tab> {
         for tab_index in 0..tabs_len {
             let id = self
                 .id
-                .with((surface_index, "surface"))
-                .with((node_index, "node"))
+                .with((path.surface, "surface"))
+                .with((path.node, "node"))
                 .with((tab_index, "tab"));
             let tab_index = TabIndex(tab_index);
             let is_being_dragged = tabs_ui.ctx().is_being_dragged(id)
@@ -301,7 +286,7 @@ impl<Tab> DockArea<'_, Tab> {
             }
 
             let (is_active, label, tab_style, closeable) = {
-                let leaf = self.dock_state[surface_index][node_index]
+                let leaf = self.dock_state[path]
                     .get_leaf_mut()
                     .expect("This node must be a leaf");
                 let style = fade.unwrap_or_else(|| self.style.as_ref().unwrap());
@@ -325,7 +310,7 @@ impl<Tab> DockArea<'_, Tab> {
                             &tab_style,
                             id,
                             label,
-                            is_active && Some((surface_index, node_index)) == focused,
+                            is_active && Some(path) == focused,
                             is_active,
                             is_being_dragged,
                             preferred_width,
@@ -351,10 +336,8 @@ impl<Tab> DockArea<'_, Tab> {
                             mem.data.insert_temp(
                                 self.id.with("drag_data"),
                                 Some(DragData {
-                                    src: TreeComponent::Tab(surface_index, node_index, tab_index),
-                                    rect: self.dock_state[surface_index][node_index]
-                                        .rect()
-                                        .unwrap(),
+                                    src: TreeComponent::Tab((path, tab_index).into()),
+                                    rect: self.dock_state[path].rect().unwrap(),
                                 }),
                             );
                         });
@@ -371,7 +354,7 @@ impl<Tab> DockArea<'_, Tab> {
                     &tab_style,
                     id,
                     label,
-                    is_active && Some((surface_index, node_index)) == focused,
+                    is_active && Some(path) == focused,
                     is_active,
                     is_being_dragged,
                     preferred_width,
@@ -380,10 +363,10 @@ impl<Tab> DockArea<'_, Tab> {
                 );
                 let title_id = response.id;
                 let close_clicked = close_response.is_some_and(|res| res.clicked());
-                let is_lonely_tab = self.dock_state[surface_index].num_tabs() == 1;
+                let is_lonely_tab = self.dock_state[path.surface].num_tabs() == 1;
 
                 if self.show_tab_name_on_hover {
-                    let tabs = self.dock_state[surface_index][node_index]
+                    let tabs = self.dock_state[path]
                         .tabs_mut()
                         .expect("This node must be a leaf");
                     let tab = &mut tabs[tab_index.0];
@@ -399,30 +382,28 @@ impl<Tab> DockArea<'_, Tab> {
                         Button::new(&self.dock_state.translations.tab_context_menu.close_button);
 
                     response.context_menu(|ui| {
-                        let leaf = self.dock_state[surface_index][node_index]
+                        let leaf = self.dock_state[path]
                             .get_leaf_mut()
                             .expect("This node must be a leaf");
                         let tab = &mut leaf.tabs[tab_index.0];
 
-                        tab_viewer.context_menu(ui, tab, surface_index, node_index);
-                        if (surface_index.is_main() || !is_lonely_tab)
+                        tab_viewer.context_menu(ui, tab, path);
+                        if (path.surface.is_main() || !is_lonely_tab)
                             && tab_viewer.allowed_in_windows(tab)
                             && ui.add(eject_button).clicked()
                         {
-                            self.to_detach.push((surface_index, node_index, tab_index));
+                            self.to_detach.push((path, tab_index).into());
                             ui.close();
                         }
                         if show_close_button && ui.add(close_button).clicked() {
                             match tab_viewer.on_close(tab) {
                                 OnCloseResponse::Close => self.to_remove.push(TabRemoval::Tab(
-                                    surface_index,
-                                    node_index,
-                                    tab_index,
+                                    (path, tab_index).into(),
                                     ForcedRemoval(false),
                                 )),
                                 OnCloseResponse::Focus => {
                                     leaf.active = tab_index;
-                                    self.new_focused = Some((surface_index, node_index));
+                                    self.new_focused = Some(path);
                                 }
                                 OnCloseResponse::Ignore => (),
                             }
@@ -433,9 +414,7 @@ impl<Tab> DockArea<'_, Tab> {
 
                 if close_clicked {
                     self.to_remove.push(TabRemoval::Tab(
-                        surface_index,
-                        node_index,
-                        tab_index,
+                        (path, tab_index).into(),
                         ForcedRemoval(false),
                     ));
                 }
@@ -457,9 +436,7 @@ impl<Tab> DockArea<'_, Tab> {
             }
 
             // Paint hline below each tab unless its active (or option says otherwise).
-            let leaf = self.dock_state[surface_index][node_index]
-                .get_leaf_mut()
-                .unwrap();
+            let leaf = self.dock_state.leaf_mut(path).unwrap();
             let tab = &mut leaf.tabs[tab_index.0];
             let style = fade.unwrap_or_else(|| self.style.as_ref().unwrap());
             let tab_style = tab_viewer.tab_style_override(tab, &style.tab);
@@ -479,7 +456,7 @@ impl<Tab> DockArea<'_, Tab> {
                     && tabs_ui.input(|i| i.key_pressed(Key::Enter) || i.key_pressed(Key::Space)))
             {
                 leaf.active = tab_index;
-                self.new_focused = Some((surface_index, node_index));
+                self.new_focused = Some(path);
             }
 
             tab_viewer.on_tab_button(tab, &response);
@@ -487,9 +464,7 @@ impl<Tab> DockArea<'_, Tab> {
             if self.show_close_buttons && tab_viewer.is_closeable(tab) && response.middle_clicked()
             {
                 self.to_remove.push(TabRemoval::Tab(
-                    surface_index,
-                    node_index,
-                    tab_index,
+                    (path, tab_index).into(),
                     ForcedRemoval(false),
                 ));
             }
@@ -503,8 +478,7 @@ impl<Tab> DockArea<'_, Tab> {
     fn tab_plus(
         &mut self,
         ui: &mut Ui,
-        surface_index: SurfaceIndex,
-        node_index: NodeIndex,
+        path: NodePath,
         tab_viewer: &mut impl TabViewer<Tab = Tab>,
         tabbar_outer_rect: Rect,
         offset: f32,
@@ -519,7 +493,7 @@ impl<Tab> DockArea<'_, Tab> {
             UiBuilder::new()
                 .max_rect(rect)
                 .layout(Layout::left_to_right(Align::Center))
-                .id_salt((node_index, "tab_add")),
+                .id_salt((path.node, "tab_add")),
         );
 
         let (rect, mut response) = ui.allocate_exact_size(ui.available_size(), Sense::click());
@@ -564,12 +538,12 @@ impl<Tab> DockArea<'_, Tab> {
                 .id(popup_id)
                 .close_behavior(PopupCloseBehavior::CloseOnClickOutside)
                 .show(|ui| {
-                    tab_viewer.add_popup(ui, surface_index, node_index);
+                    tab_viewer.add_popup(ui, path);
                 });
         }
 
         if response.clicked() {
-            tab_viewer.on_add(surface_index, node_index);
+            tab_viewer.on_add(path);
         }
     }
 
@@ -579,8 +553,7 @@ impl<Tab> DockArea<'_, Tab> {
     fn tab_close_all(
         &mut self,
         ui: &mut Ui,
-        surface_index: SurfaceIndex,
-        node_index: NodeIndex,
+        path: NodePath,
         tabbar_outer_rect: Rect,
         fade_style: Option<&Style>,
         disabled: bool,
@@ -595,7 +568,7 @@ impl<Tab> DockArea<'_, Tab> {
             UiBuilder::new()
                 .max_rect(rect)
                 .layout(Layout::left_to_right(Align::Center))
-                .id_salt((node_index, "tab_close_all")),
+                .id_salt((path.node, "tab_close_all")),
         );
 
         let (rect, mut response) = ui.allocate_exact_size(ui.available_size(), Sense::click());
@@ -603,7 +576,7 @@ impl<Tab> DockArea<'_, Tab> {
         let style = fade_style.unwrap_or_else(|| self.style.as_ref().unwrap());
 
         // Whether we're on "secondary button mode" due to modifier keys
-        let on_secondary_button = self.is_on_secondary_button(surface_index, ui, &response);
+        let on_secondary_button = self.is_on_secondary_button(path.surface, ui, &response);
 
         let mut stroke_color = if disabled {
             style.buttons.close_all_tabs_disabled_color
@@ -646,7 +619,7 @@ impl<Tab> DockArea<'_, Tab> {
         } else {
             // Close all tabs in this leaf
             if !disabled {
-                if !surface_index.is_main() && self.secondary_button_context_menu {
+                if !path.surface.is_main() && self.secondary_button_context_menu {
                     response.context_menu(|ui| {
                         ui.add_enabled_ui(!close_window_disabled, |ui| {
                             if ui
@@ -660,7 +633,7 @@ impl<Tab> DockArea<'_, Tab> {
                                 )
                                 .clicked()
                             {
-                                self.to_remove.push(TabRemoval::Window(surface_index));
+                                self.to_remove.push(TabRemoval::Window(path.surface));
                             }
                         });
                     });
@@ -680,11 +653,10 @@ impl<Tab> DockArea<'_, Tab> {
             if response.clicked() {
                 if on_secondary_button {
                     if !close_window_disabled {
-                        self.to_remove.push(TabRemoval::Window(surface_index));
+                        self.to_remove.push(TabRemoval::Window(path.surface));
                     }
                 } else if !disabled {
-                    self.to_remove
-                        .push(TabRemoval::Node(surface_index, node_index));
+                    self.to_remove.push(TabRemoval::Node(path));
                 }
             }
 
@@ -709,7 +681,7 @@ impl<Tab> DockArea<'_, Tab> {
         );
 
         if !disabled && !on_secondary_button {
-            response = self.show_tooltip_hints(surface_index, response);
+            response = self.show_tooltip_hints(path.surface, response);
         }
     }
 
@@ -717,8 +689,7 @@ impl<Tab> DockArea<'_, Tab> {
     fn tab_collapse(
         &mut self,
         ui: &mut Ui,
-        surface_index: SurfaceIndex,
-        node_index: NodeIndex,
+        path: NodePath,
         tabbar_outer_rect: Rect,
         fade_style: Option<&Style>,
         collapsed: bool,
@@ -732,7 +703,7 @@ impl<Tab> DockArea<'_, Tab> {
             UiBuilder::new()
                 .max_rect(rect)
                 .layout(Layout::left_to_right(Align::Center))
-                .id_salt((node_index, "tab_collapse")),
+                .id_salt((path.node, "tab_collapse")),
         );
 
         let (rect, mut response) = ui.allocate_exact_size(ui.available_size(), Sense::click());
@@ -742,7 +713,7 @@ impl<Tab> DockArea<'_, Tab> {
         let style = fade_style.unwrap_or_else(|| self.style.as_ref().unwrap());
 
         // Whether we're on "secondary button mode" due to modifier keys
-        let on_secondary_button = self.is_on_secondary_button(surface_index, ui, &response);
+        let on_secondary_button = self.is_on_secondary_button(path.surface, ui, &response);
 
         let color = if response.hovered() || response.has_focus() {
             ui.painter().rect_filled(
@@ -778,28 +749,28 @@ impl<Tab> DockArea<'_, Tab> {
 
         if response.clicked() {
             if on_secondary_button {
-                self.window_toggle_minimized(surface_index);
+                self.window_toggle_minimized(path.surface);
             } else {
-                self.dock_state[surface_index][node_index].set_collapsed(!collapsed);
-                self.dock_state[surface_index].node_update_collapsed(node_index);
-                self.window_update_collapsed(surface_index, node_index);
+                self.dock_state[path].set_collapsed(!collapsed);
+                self.dock_state[path.surface].node_update_collapsed(path.node);
+                self.window_update_collapsed(path);
             }
         }
 
-        if !surface_index.is_main() && self.secondary_button_context_menu {
+        if !path.surface.is_main() && self.secondary_button_context_menu {
             response.context_menu(|ui| {
                 if ui
                     .button(&self.dock_state.translations.leaf.minimize_button)
                     .clicked()
                 {
                     ui.close();
-                    self.window_toggle_minimized(surface_index);
+                    self.window_toggle_minimized(path.surface);
                 }
             });
         }
 
         if !on_secondary_button {
-            self.show_tooltip_hints(surface_index, response);
+            self.show_tooltip_hints(path.surface, response);
         }
     }
 
@@ -929,11 +900,11 @@ impl<Tab> DockArea<'_, Tab> {
     }
 
     /// Updates the collapsed state of the node and its parents.
-    fn window_update_collapsed(&mut self, surface_index: SurfaceIndex, node_index: NodeIndex) {
-        let surface = &mut self.dock_state[surface_index];
-        let collapsed = surface[node_index].is_collapsed();
+    fn window_update_collapsed(&mut self, path: NodePath) {
+        let surface = &mut self.dock_state[path.surface];
+        let collapsed = surface[path.node].is_collapsed();
         if !collapsed {
-            if let Some(window_state) = self.dock_state.get_window_state_mut(surface_index) {
+            if let Some(window_state) = self.dock_state.get_window_state_mut(path.surface) {
                 window_state.set_new(true);
             }
         } else if surface.root_node().is_some_and(|root| root.is_collapsed()) {
@@ -943,7 +914,7 @@ impl<Tab> DockArea<'_, Tab> {
             } else {
                 0.0
             };
-            if let Some(window_state) = self.dock_state.get_window_state_mut(surface_index) {
+            if let Some(window_state) = self.dock_state.get_window_state_mut(path.surface) {
                 window_state.set_expanded_height(surface_height);
             }
         }
@@ -1093,7 +1064,7 @@ impl<Tab> DockArea<'_, Tab> {
         &mut self,
         ui: &mut Ui,
         state: &State,
-        (surface_index, node_index): (SurfaceIndex, NodeIndex),
+        path: NodePath,
         actual_width: f32,
         available_width: f32,
         scroll_bar_width: f32,
@@ -1103,7 +1074,7 @@ impl<Tab> DockArea<'_, Tab> {
     ) {
         assert_ne!(available_width, 0.0);
 
-        let leaf = self.dock_state[surface_index][node_index]
+        let leaf = self.dock_state[path]
             .get_leaf_mut()
             .expect("This node must be a leaf");
         let overflow = (actual_width - available_width).at_least(0.0);
@@ -1136,7 +1107,7 @@ impl<Tab> DockArea<'_, Tab> {
 
                 let scroll_bar_handle_response = ui.interact(
                     scroll_bar_handle_rect,
-                    self.id.with((node_index, "node")),
+                    self.id.with((path.node, "node")),
                     Sense::drag(),
                 );
 
@@ -1183,7 +1154,7 @@ impl<Tab> DockArea<'_, Tab> {
         &mut self,
         ui: &mut Ui,
         state: &State,
-        (surface_index, node_index): (SurfaceIndex, NodeIndex),
+        path: NodePath,
         tab_viewer: &mut impl TabViewer<Tab = Tab>,
         spacing: Vec2,
         tabbar_rect: Rect,
@@ -1193,8 +1164,9 @@ impl<Tab> DockArea<'_, Tab> {
         let (body_rect, _body_response) =
             ui.allocate_exact_size(ui.available_size_before_wrap(), Sense::hover());
 
-        let leaf = self.dock_state[surface_index][node_index]
-            .get_leaf_mut()
+        let leaf = self
+            .dock_state
+            .leaf_mut(path)
             .expect("This node must be a leaf");
         let LeafNode {
             rect,
@@ -1215,7 +1187,7 @@ impl<Tab> DockArea<'_, Tab> {
                         if body_rect.contains(pos)
                             && Some(ui.layer_id()) == ui.ctx().layer_id_at(pos)
                         {
-                            self.new_focused = Some((surface_index, node_index));
+                            self.new_focused = Some(path);
                         }
                     }
                 }
@@ -1293,10 +1265,12 @@ impl<Tab> DockArea<'_, Tab> {
                     drag: DragData { src, .. },
                     ..
                 }) => match *src {
-                    TreeComponent::Tab(d_surf, d_node, d_tab) => {
-                        if let Node::Leaf(leaf) = &mut self.dock_state[d_surf][d_node] {
-                            tab_viewer.allowed_in_windows(&mut leaf.tabs[d_tab.0])
-                                || surface_index == SurfaceIndex::main()
+                    TreeComponent::Tab(src_path) => {
+                        if let Node::Leaf(leaf) =
+                            &mut self.dock_state[src_path.surface][src_path.node]
+                        {
+                            tab_viewer.allowed_in_windows(&mut leaf.tabs[src_path.tab.0])
+                                || path.surface == SurfaceIndex::main()
                         } else {
                             true
                         }
@@ -1312,12 +1286,11 @@ impl<Tab> DockArea<'_, Tab> {
                 let on_title_bar = tabbar_rect.contains(pointer);
                 let (dst, tab) = {
                     match self.tab_hover_rect {
-                        Some((rect, tab_index)) => (
-                            TreeComponent::Tab(surface_index, node_index, tab_index),
-                            Some(rect),
-                        ),
+                        Some((rect, tab_index)) => {
+                            (TreeComponent::Tab((path, tab_index).into()), Some(rect))
+                        }
                         None => (
-                            TreeComponent::Node(surface_index, node_index),
+                            TreeComponent::Node(path),
                             on_title_bar.then_some(tabbar_rect),
                         ),
                     }

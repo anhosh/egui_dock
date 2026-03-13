@@ -1,5 +1,7 @@
 use std::ops::Range;
 
+use crate::SurfaceIndex;
+
 /// Wrapper around indices to the collection of nodes inside a [`Tree`](crate::Tree).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -92,5 +94,21 @@ impl NodeIndex {
         let s = (self.0 + 1) * base + (base / 2) - 1;
         let e = (self.0 + 2) * base - 1;
         s..e
+    }
+}
+
+/// A full path to locate a node in an entire dock state.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct NodePath {
+    /// Index of the surface owning the node.
+    pub surface: SurfaceIndex,
+    /// Index of the node in the surface tree.
+    pub node: NodeIndex,
+}
+
+impl From<NodePath> for SurfaceIndex {
+    fn from(path: NodePath) -> Self {
+        path.surface
     }
 }

@@ -1,7 +1,8 @@
 use std::ops::BitOrAssign;
 
 use crate::{
-    AllowedSplits, NodeIndex, Split, Style, SurfaceIndex, TabDestination, TabIndex, TabInsert,
+    AllowedSplits, NodeIndex, NodePath, Split, Style, SurfaceIndex, TabDestination, TabInsert,
+    TabPath,
 };
 use egui::{
     emath::{inverse_lerp, GuiRounding},
@@ -30,36 +31,32 @@ pub(super) struct DragData {
 #[derive(Debug, Clone)]
 pub(super) enum TreeComponent {
     Surface(SurfaceIndex),
-    Node(SurfaceIndex, NodeIndex),
-    Tab(SurfaceIndex, NodeIndex, TabIndex),
+    Node(NodePath),
+    Tab(TabPath),
 }
 
 impl TreeComponent {
     pub(super) fn as_tab_destination(&self) -> TabDestination {
         match *self {
             TreeComponent::Surface(surface) => TabDestination::EmptySurface(surface),
-            TreeComponent::Node(dst_surf, dst_node) => {
-                TabDestination::Node(dst_surf, dst_node, TabInsert::Append)
-            }
-            TreeComponent::Tab(dst_surf, dst_node, tab_index) => {
-                TabDestination::Node(dst_surf, dst_node, TabInsert::Insert(tab_index))
-            }
+            TreeComponent::Node(dst) => TabDestination::Node(dst, TabInsert::Append),
+            TreeComponent::Tab(dst) => TabDestination::Node(dst.into(), TabInsert::Insert(dst.tab)),
         }
     }
 
     pub(super) fn node_address(&self) -> (SurfaceIndex, Option<NodeIndex>) {
         match *self {
             TreeComponent::Surface(surface) => (surface, None),
-            TreeComponent::Node(dst_surf, dst_node) => (dst_surf, Some(dst_node)),
-            TreeComponent::Tab(dst_surf, dst_node, _) => (dst_surf, Some(dst_node)),
+            TreeComponent::Node(dst) => (dst.surface, Some(dst.node)),
+            TreeComponent::Tab(dst) => (dst.surface, Some(dst.node)),
         }
     }
 
     pub(super) fn surface_address(&self) -> SurfaceIndex {
         match *self {
             TreeComponent::Surface(surface)
-            | TreeComponent::Node(surface, _)
-            | TreeComponent::Tab(surface, _, _) => surface,
+            | TreeComponent::Node(NodePath { surface, .. })
+            | TreeComponent::Tab(TabPath { surface, .. }) => surface,
         }
     }
 
@@ -199,8 +196,8 @@ impl DragDropState {
 
         if button_ui(rect, ui, &mut hovering_buttons, pointer, style, None) {
             match self.hover.dst {
-                TreeComponent::Node(surface, node) => {
-                    destination = Some(TabDestination::Node(surface, node, TabInsert::Append))
+                TreeComponent::Node(path) => {
+                    destination = Some(TabDestination::Node(path, TabInsert::Append))
                 }
                 TreeComponent::Surface(surface) => {
                     destination = Some(TabDestination::EmptySurface(surface))
@@ -230,9 +227,8 @@ impl DragDropState {
                         style,
                         Some(split),
                     ) {
-                        if let TreeComponent::Node(surface, node) = self.hover.dst {
-                            destination =
-                                Some(TabDestination::Node(surface, node, TabInsert::Split(split)))
+                        if let TreeComponent::Node(path) = self.hover.dst {
+                            destination = Some(TabDestination::Node(path, TabInsert::Split(split)))
                         }
                     }
                 }
@@ -350,7 +346,7 @@ impl DragDropState {
             .then(|| TabDestination::Window(Rect::from_min_size(pointer, self.drag.rect.size())));
         let final_result = tab_insertion.map_or(default_value, |tab| match self.hover.dst {
             TreeComponent::Surface(surface) => Some(TabDestination::EmptySurface(surface)),
-            TreeComponent::Node(surface, node) => Some(TabDestination::Node(surface, node, tab)),
+            TreeComponent::Node(path) => Some(TabDestination::Node(path, tab)),
             _ => None,
         });
 

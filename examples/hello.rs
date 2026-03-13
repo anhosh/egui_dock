@@ -9,7 +9,7 @@ use egui::{
     WidgetText,
 };
 
-use egui_dock::tab_viewer::OnCloseResponse;
+use egui_dock::{tab_viewer::OnCloseResponse, NodePath};
 use egui_dock::{
     AllowedSplits, DockArea, DockState, NodeIndex, OverlayType, Style, SurfaceIndex,
     TabInteractionStyle, TabViewer,
@@ -104,13 +104,7 @@ impl TabViewer for MyContext {
         }
     }
 
-    fn context_menu(
-        &mut self,
-        ui: &mut Ui,
-        tab: &mut Self::Tab,
-        _surface: SurfaceIndex,
-        _node: NodeIndex,
-    ) {
+    fn context_menu(&mut self, ui: &mut Ui, tab: &mut Self::Tab, _path: NodePath) {
         match tab.as_str() {
             "Simple Demo" => self.simple_demo_menu(ui),
             _ => {

@@ -23,8 +23,8 @@ pub mod node_index;
 pub use node::LeafNode;
 pub use node::Node;
 pub use node::SplitNode;
-pub use node_index::NodeIndex;
-pub use tab_index::TabIndex;
+pub use node_index::{NodeIndex, NodePath};
+pub use tab_index::{TabIndex, TabPath};
 pub use tab_iter::TabIter;
 
 use egui::ahash::HashSet;
@@ -79,16 +79,16 @@ pub enum TabDestination {
     /// Move to a new window with this rect.
     Window(Rect),
 
-    /// Move to a an existing node with this insertion.
-    Node(SurfaceIndex, NodeIndex, TabInsert),
+    /// Move to an existing node with this insertion.
+    Node(NodePath, TabInsert),
 
     /// Move to an empty surface.
     EmptySurface(SurfaceIndex),
 }
 
-impl From<(SurfaceIndex, NodeIndex, TabInsert)> for TabDestination {
-    fn from(value: (SurfaceIndex, NodeIndex, TabInsert)) -> TabDestination {
-        TabDestination::Node(value.0, value.1, value.2)
+impl From<(NodePath, TabInsert)> for TabDestination {
+    fn from(value: (NodePath, TabInsert)) -> TabDestination {
+        TabDestination::Node(value.0, value.1)
     }
 }
 

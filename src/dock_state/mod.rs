@@ -15,9 +15,14 @@ pub use surface_index::SurfaceIndex;
 use tree::node::LeafNode;
 pub use window_state::WindowState;
 
+use std::ops;
+
 use egui::Rect;
 
-use crate::{Node, NodeIndex, Split, TabDestination, TabIndex, TabInsert, Translations, Tree};
+use crate::{
+    Node, NodeIndex, NodePath, Split, TabDestination, TabIndex, TabInsert, TabPath, Translations,
+    Tree,
+};
 
 /// The heart of `egui_dock`.
 ///
@@ -36,7 +41,7 @@ pub struct DockState<Tab> {
     pub translations: Translations,
 }
 
-impl<Tab> std::ops::Index<SurfaceIndex> for DockState<Tab> {
+impl<Tab> ops::Index<SurfaceIndex> for DockState<Tab> {
     type Output = Tree<Tab>;
 
     #[inline(always)]
@@ -50,13 +55,45 @@ impl<Tab> std::ops::Index<SurfaceIndex> for DockState<Tab> {
     }
 }
 
-impl<Tab> std::ops::IndexMut<SurfaceIndex> for DockState<Tab> {
+impl<Tab> ops::IndexMut<SurfaceIndex> for DockState<Tab> {
     #[inline(always)]
     fn index_mut(&mut self, index: SurfaceIndex) -> &mut Self::Output {
         match self.surfaces[index.0].node_tree_mut() {
             Some(tree) => tree,
             None => {
                 panic!("There did not exist a tree at surface index {}", index.0);
+            }
+        }
+    }
+}
+
+impl<Tab> ops::Index<NodePath> for DockState<Tab> {
+    type Output = Node<Tab>;
+
+    #[inline(always)]
+    fn index(&self, index: NodePath) -> &Self::Output {
+        match self.surfaces[index.surface.0].node_tree() {
+            Some(tree) => &tree[index.node],
+            None => {
+                panic!(
+                    "There did not exist a tree at surface index {}",
+                    index.surface.0
+                );
+            }
+        }
+    }
+}
+
+impl<Tab> ops::IndexMut<NodePath> for DockState<Tab> {
+    #[inline(always)]
+    fn index_mut(&mut self, index: NodePath) -> &mut Self::Output {
+        match self.surfaces[index.surface.0].node_tree_mut() {
+            Some(tree) => &mut tree[index.node],
+            None => {
+                panic!(
+                    "There did not exist a tree at surface index {}",
+                    index.surface.0
+                );
             }
         }
     }
@@ -182,134 +219,156 @@ impl<Tab> DockState<Tab> {
     }
 
     /// Sets which is the active tab within a specific node on a given surface.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `path.surface` is not a valid surface.
+    ///
+    /// If the node at `path.node` is not a leaf or doesn't exist, this method does nothing.
     #[inline]
-    pub fn set_active_tab(
-        &mut self,
-        (surface_index, node_index, tab_index): (SurfaceIndex, NodeIndex, TabIndex),
-    ) {
-        if let Some(Node::Leaf(leaf)) = self[surface_index].nodes.get_mut(node_index.0) {
-            leaf.active = tab_index;
+    pub fn set_active_tab(&mut self, path: TabPath) {
+        if let Some(Node::Leaf(leaf)) = self[path.surface].nodes.get_mut(path.node.0) {
+            leaf.active = path.tab;
         }
+    }
+
+    /// Immutably borrows a node at the given path.
+    ///
+    /// This is the same as `&self[path]` but never panics.
+    pub fn node(&self, path: NodePath) -> Option<&Node<Tab>> {
+        self.surfaces
+            .get(path.surface.0)?
+            .node_tree()?
+            .nodes
+            .get(path.node.0)
+    }
+
+    /// Mutably borrows a node at the given path.
+    ///
+    /// This is the same as `&mut self[path]` but never panics.
+    pub fn node_mut(&mut self, path: NodePath) -> Option<&mut Node<Tab>> {
+        self.surfaces
+            .get_mut(path.surface.0)?
+            .node_tree_mut()?
+            .nodes
+            .get_mut(path.node.0)
+    }
+
+    /// Immutably borrows a leaf node at the given path.
+    ///
+    /// Returns `None` if the path is invalid or the node at the path is not a leaf.
+    pub fn leaf(&self, path: NodePath) -> Option<&LeafNode<Tab>> {
+        self.node(path).and_then(Node::get_leaf)
+    }
+
+    /// Mutably borrows a leaf node at the given path.
+    ///
+    /// Returns `None` if the path is invalid or the node at the path is not a leaf.
+    pub fn leaf_mut(&mut self, path: NodePath) -> Option<&mut LeafNode<Tab>> {
+        self.node_mut(path).and_then(Node::get_leaf_mut)
     }
 
     /// Sets the currently focused leaf to `node_index` if the node at `node_index` is a leaf.
     #[inline]
-    pub fn set_focused_node_and_surface(
-        &mut self,
-        (surface_index, node_index): (SurfaceIndex, NodeIndex),
-    ) {
-        if self.is_surface_valid(surface_index) && node_index.0 < self[surface_index].len() {
-            // I don't want this code to be evaluated until im absolutely sure the surface index is valid.
-            if self[surface_index][node_index].is_leaf() {
-                self.focused_surface = Some(surface_index);
-                self[surface_index].set_focused_node(node_index);
-                return;
-            }
+    pub fn set_focused_node_and_surface(&mut self, path: NodePath) {
+        if self.leaf(path).is_some() {
+            self.focused_surface = Some(path.surface);
+            self[path.surface].set_focused_node(path.node);
+        } else {
+            self.focused_surface = None;
         }
-        self.focused_surface = None;
     }
 
     /// Moves a tab from a node to another node.
     /// You need to specify with [`TabDestination`] how the tab should be moved.
-    pub fn move_tab(
-        &mut self,
-        (src_surface, src_node, src_tab): (SurfaceIndex, NodeIndex, TabIndex),
-        dst_tab: impl Into<TabDestination>,
-    ) {
+    pub fn move_tab(&mut self, src: TabPath, dst_tab: impl Into<TabDestination>) {
         match dst_tab.into() {
             TabDestination::Window(position) => {
-                self.detach_tab((src_surface, src_node, src_tab), position);
+                self.detach_tab(src, position);
                 return;
             }
-            TabDestination::Node(dst_surface, dst_node, dst_tab) => {
+            TabDestination::Node(dst, dst_tab) => {
                 // Moving a single tab inside its own node is a no-op
-                if src_surface == dst_surface
-                    && src_node == dst_node
-                    && self[src_surface][src_node].tabs_count() == 1
-                {
+                if src.node_path() == dst && self[src.node_path()].tabs_count() == 1 {
                     return;
                 }
 
                 // Call `Node::remove_tab` to avoid auto remove of the node by `Tree::remove_tab` from Tree.
-                let tab = self[src_surface][src_node].remove_tab(src_tab).unwrap();
+                let tab = self[src.node_path()].remove_tab(src.tab).unwrap();
                 match dst_tab {
                     TabInsert::Split(split) => {
-                        self[dst_surface].split(dst_node, split, 0.5, Node::leaf(tab));
+                        self[dst.surface].split(dst.node, split, 0.5, Node::leaf(tab));
                     }
 
-                    TabInsert::Insert(index) => self[dst_surface][dst_node].insert_tab(index, tab),
-                    TabInsert::Append => self[dst_surface][dst_node].append_tab(tab),
+                    TabInsert::Insert(index) => self[dst.surface][dst.node].insert_tab(index, tab),
+                    TabInsert::Append => self[dst.surface][dst.node].append_tab(tab),
                 }
             }
             TabDestination::EmptySurface(dst_surface) => {
                 assert!(self[dst_surface].is_empty());
-                let tab = self[src_surface][src_node].remove_tab(src_tab).unwrap();
+                let tab = self[src.node_path()].remove_tab(src.tab).unwrap();
                 self[dst_surface] = Tree::new(vec![tab])
             }
         }
-        if self[src_surface][src_node].is_leaf() && self[src_surface][src_node].tabs_count() == 0 {
-            self[src_surface].remove_leaf(src_node);
+        if self[src.node_path()].is_leaf() && self[src.node_path()].tabs_count() == 0 {
+            self[src.surface].remove_leaf(src.node);
         }
-        if self[src_surface].is_empty() && !src_surface.is_main() {
-            self.remove_surface(src_surface);
+        if self[src.surface].is_empty() && !src.surface.is_main() {
+            self.remove_surface(src.surface);
         }
     }
 
     /// Takes a tab out of its current surface and puts it in a new window.
     /// Returns the surface index of the new window.
-    pub fn detach_tab(
-        &mut self,
-        (src_surface, src_node, src_tab): (SurfaceIndex, NodeIndex, TabIndex),
-        window_rect: Rect,
-    ) -> SurfaceIndex {
+    pub fn detach_tab(&mut self, src: TabPath, window_rect: Rect) -> SurfaceIndex {
         // Remove the tab from the tree and it add to a new window.
-        let tab = self[src_surface][src_node].remove_tab(src_tab).unwrap();
+        let tab = self[src.node_path()].remove_tab(src.tab).unwrap();
         let surface_index = self.add_window(vec![tab]);
 
         // Set the window size and position to match `window_rect`.
         let state = self.get_window_state_mut(surface_index).unwrap();
         state.set_position(window_rect.min);
-        if src_surface.is_main() {
+        if src.surface.is_main() {
             state.set_size(window_rect.size() * 0.8);
         } else {
             state.set_size(window_rect.size());
         }
 
         // Clean up any empty leaves and surfaces which may be left behind from the detachment.
-        if self[src_surface][src_node].is_leaf() && self[src_surface][src_node].tabs_count() == 0 {
-            self[src_surface].remove_leaf(src_node);
+        if self[src.node_path()].is_leaf() && self[src.node_path()].tabs_count() == 0 {
+            self[src.surface].remove_leaf(src.node);
         }
-        if self[src_surface].is_empty() && !src_surface.is_main() {
-            self.remove_surface(src_surface);
+        if self[src.surface].is_empty() && !src.surface.is_main() {
+            self.remove_surface(src.surface);
         }
         surface_index
     }
 
     /// Currently focused leaf.
     #[inline]
-    pub fn focused_leaf(&self) -> Option<(SurfaceIndex, NodeIndex)> {
+    pub fn focused_leaf(&self) -> Option<NodePath> {
         let surface = self.focused_surface?;
-        self[surface].focused_leaf().map(|leaf| (surface, leaf))
+        self[surface].focused_leaf().map(|leaf| NodePath {
+            surface,
+            node: leaf,
+        })
     }
 
     /// Remove a tab at the specified surface, node, and tab index.
     /// This method will yield the removed tab, or `None` if it doesn't exist.
-    pub fn remove_tab(
-        &mut self,
-        (surface_index, node_index, tab_index): (SurfaceIndex, NodeIndex, TabIndex),
-    ) -> Option<Tab> {
-        let removed_tab = self[surface_index].remove_tab((node_index, tab_index));
-        if !surface_index.is_main() && self[surface_index].is_empty() {
-            self.remove_surface(surface_index);
+    pub fn remove_tab(&mut self, path: TabPath) -> Option<Tab> {
+        let removed_tab = self[path.surface].remove_tab((path.node, path.tab));
+        if !path.surface.is_main() && self[path.surface].is_empty() {
+            self.remove_surface(path.surface);
         }
         removed_tab
     }
 
     /// Remove a leaf at the specified surface, and node index.
-    pub fn remove_leaf(&mut self, (surface_index, node_index): (SurfaceIndex, NodeIndex)) {
-        self[surface_index].remove_leaf(node_index);
-        if !surface_index.is_main() && self[surface_index].is_empty() {
-            self.remove_surface(surface_index);
+    pub fn remove_leaf(&mut self, path: NodePath) {
+        self[path.surface].remove_leaf(path.node);
+        if !path.surface.is_main() && self[path.surface].is_empty() {
+            self.remove_surface(path.surface);
         }
     }
 
@@ -324,13 +383,13 @@ impl<Tab> DockState<Tab> {
     /// Returns the indices of the old node and the new node.
     pub fn split(
         &mut self,
-        (surface, parent): (SurfaceIndex, NodeIndex),
+        parent_path: NodePath,
         split: Split,
         fraction: f32,
         new: Node<Tab>,
     ) -> [NodeIndex; 2] {
-        let index = self[surface].split(parent, split, fraction, new);
-        self.focused_surface = Some(surface);
+        let index = self[parent_path.surface].split(parent_path.node, split, fraction, new);
+        self.focused_surface = Some(parent_path.surface);
         index
     }
 
@@ -407,58 +466,102 @@ impl<Tab> DockState<Tab> {
         self.surfaces.iter()
     }
 
+    /// Returns an [`Iterator`] over all surfaces with their corresponding [`SurfaceIndex`].
+    pub fn iter_surfaces_indexed(&self) -> impl Iterator<Item = (SurfaceIndex, &Surface<Tab>)> {
+        self.surfaces
+            .iter()
+            .enumerate()
+            .map(|(index, surface)| (SurfaceIndex(index), surface))
+    }
+
     /// Returns a mutable [`Iterator`] over all surfaces.
     pub fn iter_surfaces_mut(&mut self) -> impl Iterator<Item = &mut Surface<Tab>> {
         self.surfaces.iter_mut()
     }
 
+    /// Returns a mutable [`Iterator`] over all surfaces with their corresponding [`SurfaceIndex`].
+    pub fn iter_surfaces_mut_indexed(
+        &mut self,
+    ) -> impl Iterator<Item = (SurfaceIndex, &mut Surface<Tab>)> {
+        self.surfaces
+            .iter_mut()
+            .enumerate()
+            .map(|(index, surface)| (SurfaceIndex(index), surface))
+    }
+
     /// Returns an [`Iterator`] of **all** underlying nodes in the dock state,
     /// and the indices of containing surfaces.
-    pub fn iter_all_nodes(&self) -> impl Iterator<Item = (SurfaceIndex, &Node<Tab>)> {
-        self.iter_surfaces()
-            .enumerate()
+    pub fn iter_all_nodes(&self) -> impl Iterator<Item = (NodePath, &Node<Tab>)> {
+        self.iter_surfaces_indexed()
             .flat_map(|(surface_index, surface)| {
-                surface
-                    .iter_nodes()
-                    .map(move |node| (surface_index.into(), node))
+                surface.iter_nodes_indexed().map(move |(node_index, node)| {
+                    (
+                        NodePath {
+                            surface: surface_index,
+                            node: node_index,
+                        },
+                        node,
+                    )
+                })
             })
     }
 
     /// Returns a mutable [`Iterator`] of **all** underlying nodes in the dock state,
     /// and the indices of containing surfaces.
-    pub fn iter_all_nodes_mut(&mut self) -> impl Iterator<Item = (SurfaceIndex, &mut Node<Tab>)> {
-        self.iter_surfaces_mut()
-            .enumerate()
+    pub fn iter_all_nodes_mut(&mut self) -> impl Iterator<Item = (NodePath, &mut Node<Tab>)> {
+        self.iter_surfaces_mut_indexed()
             .flat_map(|(surface_index, surface)| {
                 surface
-                    .iter_nodes_mut()
-                    .map(move |node| (surface_index.into(), node))
+                    .iter_nodes_mut_indexed()
+                    .map(move |(node_index, node)| {
+                        (
+                            NodePath {
+                                surface: surface_index,
+                                node: node_index,
+                            },
+                            node,
+                        )
+                    })
             })
     }
 
     /// Returns an [`Iterator`] of **all** tabs in the dock state,
     /// and the indices of containing surfaces and nodes.
-    pub fn iter_all_tabs(&self) -> impl Iterator<Item = ((SurfaceIndex, NodeIndex), &Tab)> {
-        self.iter_surfaces()
-            .enumerate()
+    pub fn iter_all_tabs(&self) -> impl Iterator<Item = (TabPath, &Tab)> {
+        self.iter_surfaces_indexed()
             .flat_map(|(surface_index, surface)| {
                 surface
                     .iter_all_tabs()
-                    .map(move |(node_index, tab)| ((surface_index.into(), node_index), tab))
+                    .map(move |((node_index, tab_index), tab)| {
+                        (
+                            TabPath {
+                                surface: surface_index,
+                                node: node_index,
+                                tab: tab_index,
+                            },
+                            tab,
+                        )
+                    })
             })
     }
 
     /// Returns a mutable [`Iterator`] of **all** tabs in the dock state,
     /// and the indices of containing surfaces and nodes.
-    pub fn iter_all_tabs_mut(
-        &mut self,
-    ) -> impl Iterator<Item = ((SurfaceIndex, NodeIndex), &mut Tab)> {
-        self.iter_surfaces_mut()
-            .enumerate()
+    pub fn iter_all_tabs_mut(&mut self) -> impl Iterator<Item = (TabPath, &mut Tab)> {
+        self.iter_surfaces_mut_indexed()
             .flat_map(|(surface_index, surface)| {
                 surface
                     .iter_all_tabs_mut()
-                    .map(move |(node_index, tab)| ((surface_index.into(), node_index), tab))
+                    .map(move |((node_index, tab_index), tab)| {
+                        (
+                            TabPath {
+                                surface: surface_index,
+                                node: node_index,
+                                tab: tab_index,
+                            },
+                            tab,
+                        )
+                    })
             })
     }
 
@@ -484,13 +587,13 @@ impl<Tab> DockState<Tab> {
     }
 
     /// Returns an immutable [`Iterator`] of all [``LeafNode``]s in the dock state.
-    pub fn iter_leaves(&self) -> impl Iterator<Item = (SurfaceIndex, &LeafNode<Tab>)> {
+    pub fn iter_leaves(&self) -> impl Iterator<Item = (NodePath, &LeafNode<Tab>)> {
         self.iter_all_nodes()
             .filter_map(|(index, node)| node.get_leaf().map(|leaf| (index, leaf)))
     }
 
     /// Returns a mutable [`Iterator`] of all [``LeafNode``]s in the dock state.
-    pub fn iter_leaves_mut(&mut self) -> impl Iterator<Item = (SurfaceIndex, &mut LeafNode<Tab>)> {
+    pub fn iter_leaves_mut(&mut self) -> impl Iterator<Item = (NodePath, &mut LeafNode<Tab>)> {
         self.iter_all_nodes_mut()
             .filter_map(|(index, node)| node.get_leaf_mut().map(|leaf| (index, leaf)))
     }
@@ -594,16 +697,17 @@ impl<Tab> DockState<Tab> {
     /// The returned [`NodeIndex`] will always point to a [`Node::Leaf`].
     ///
     /// In case there are several hits, only the first is returned.
-    pub fn find_tab_from(
-        &self,
-        predicate: impl Fn(&Tab) -> bool,
-    ) -> Option<(SurfaceIndex, NodeIndex, TabIndex)> {
+    pub fn find_tab_from(&self, predicate: impl Fn(&Tab) -> bool) -> Option<TabPath> {
         for &surface_index in self.valid_surface_indices().iter() {
             if self.surfaces[surface_index.0].is_empty() {
                 continue;
             }
             if let Some((node_index, tab_index)) = self[surface_index].find_tab_from(&predicate) {
-                return Some((surface_index, node_index, tab_index));
+                return Some(TabPath {
+                    surface: surface_index,
+                    node: node_index,
+                    tab: tab_index,
+                });
             }
         }
         None
@@ -623,7 +727,7 @@ where
     /// In case there are several hits, only the first is returned.
     ///
     /// See also: [`find_main_surface_tab`](DockState::find_main_surface_tab)
-    pub fn find_tab(&self, needle_tab: &Tab) -> Option<(SurfaceIndex, NodeIndex, TabIndex)> {
+    pub fn find_tab(&self, needle_tab: &Tab) -> Option<TabPath> {
         self.find_tab_from(|tab| tab == needle_tab)
     }
 

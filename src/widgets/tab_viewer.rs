@@ -1,4 +1,4 @@
-use crate::{NodeIndex, SurfaceIndex, TabStyle};
+use crate::{NodePath, TabStyle};
 use egui::{Id, Ui, WidgetText};
 
 /// Defines how a tab should behave and be rendered inside a [`Tree`](crate::Tree).
@@ -14,16 +14,9 @@ pub trait TabViewer {
 
     /// Content inside the context menu shown when the tab is right-clicked.
     ///
-    /// `_surface` and `_node` specify which [`Surface`](crate::Surface) and [`Node`](crate::Node)
+    /// `_path` specify which [`Surface`](crate::Surface) and [`Node`](crate::Node)
     /// that this particular context menu belongs to.
-    fn context_menu(
-        &mut self,
-        _ui: &mut Ui,
-        _tab: &mut Self::Tab,
-        _surface: SurfaceIndex,
-        _node: NodeIndex,
-    ) {
-    }
+    fn context_menu(&mut self, _ui: &mut Ui, _tab: &mut Self::Tab, _path: NodePath) {}
 
     /// Unique ID for this tab.
     ///
@@ -68,9 +61,9 @@ pub trait TabViewer {
 
     /// This is called when the add button is pressed.
     ///
-    /// `_surface` and `_node` specify which [`Surface`](crate::Surface) and on which
+    /// `_path` specify which [`Surface`](crate::Surface) and on which
     /// [`Node`](crate::Node) this particular add button was pressed.
-    fn on_add(&mut self, _surface: SurfaceIndex, _node: NodeIndex) {}
+    fn on_add(&mut self, _path: NodePath) {}
 
     /// Called when the rectangle of the tab content changes.
     ///
@@ -86,7 +79,7 @@ pub trait TabViewer {
     ///
     /// This requires that [`DockArea::show_add_buttons`](crate::DockArea::show_add_buttons) and
     /// [`DockArea::show_add_popup`](crate::DockArea::show_add_popup) are set to `true`.
-    fn add_popup(&mut self, _ui: &mut Ui, _surface: SurfaceIndex, _node: NodeIndex) {}
+    fn add_popup(&mut self, _ui: &mut Ui, _path: NodePath) {}
 
     /// Sets custom style for given tab.
     fn tab_style_override(&self, _tab: &Self::Tab, _global_style: &TabStyle) -> Option<TabStyle> {
