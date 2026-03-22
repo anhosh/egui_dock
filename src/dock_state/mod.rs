@@ -241,7 +241,7 @@ impl<Tab> DockState<Tab> {
                         // Clamp index to valid range: after remove_tab the node may have fewer tabs
                         // than the original index (e.g. when reordering within the same node).
                         let count = self[dst_surface][dst_node].tabs_count();
-                        let clamped = if index.0 > count { TabIndex(count) } else { index };
+                        let clamped = TabIndex(count.min(index.0));
                         self[dst_surface][dst_node].insert_tab(clamped, tab);
                     }
                     TabInsert::Append => self[dst_surface][dst_node].append_tab(tab),
