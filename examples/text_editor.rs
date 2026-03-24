@@ -71,7 +71,9 @@ impl eframe::App for MyApp {
                 let is_open = tab_location.is_some();
                 if ui.selectable_label(is_open, title).clicked() {
                     if let Some(tab_location) = tab_location {
-                        self.tree.set_active_tab(tab_location);
+                        self.tree
+                            .set_active_tab(tab_location)
+                            .expect("path returned by find_tab is valid");
                     } else {
                         // Open the file for editing:
                         self.tree.push_to_focused_leaf(title.clone());

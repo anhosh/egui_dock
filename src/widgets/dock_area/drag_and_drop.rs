@@ -41,7 +41,9 @@ impl TreeComponent {
         match *self {
             TreeComponent::Surface(surface) => TabDestination::EmptySurface(surface),
             TreeComponent::Node(dst) => TabDestination::Node(dst, TabInsert::Append),
-            TreeComponent::Tab(dst) => TabDestination::Node(dst.into(), TabInsert::Insert(dst.tab)),
+            TreeComponent::Tab(dst) => {
+                TabDestination::Node(dst.node_path(), TabInsert::Insert(dst.tab))
+            }
         }
     }
 

@@ -135,9 +135,3 @@ impl NodePath {
         }
     }
 }
-
-impl From<NodePath> for SurfaceIndex {
-    fn from(path: NodePath) -> Self {
-        path.surface
-    }
-}

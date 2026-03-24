@@ -24,21 +24,6 @@ pub struct TabPath {
     pub tab: TabIndex,
 }
 
-impl From<TabPath> for SurfaceIndex {
-    fn from(path: TabPath) -> Self {
-        path.surface
-    }
-}
-
-impl From<TabPath> for NodePath {
-    fn from(path: TabPath) -> Self {
-        NodePath {
-            surface: path.surface,
-            node: path.node,
-        }
-    }
-}
-
 impl TabPath {
     /// Creates a new fully qualified path to a tab.
     pub const fn new(surface: SurfaceIndex, node: NodeIndex, tab: TabIndex) -> Self {
@@ -47,7 +32,10 @@ impl TabPath {
 
     /// Get the node path components.
     pub fn node_path(self) -> NodePath {
-        self.into()
+        NodePath {
+            surface: self.surface,
+            node: self.node,
+        }
     }
 }
 

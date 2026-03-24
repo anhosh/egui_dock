@@ -109,7 +109,7 @@ impl<Tab> Surface<Tab> {
     }
 
     /// Returns a mutable [`Iterator`] of **all** tabs in this surface's tree
-    /// Returns an [`Iterator`] of **all** tabs in this surface's tree
+    /// and their corresponding paths within the surface.
     pub fn iter_all_tabs_mut(&mut self) -> impl Iterator<Item = ((NodeIndex, TabIndex), &mut Tab)> {
         self.iter_nodes_mut_indexed()
             .flat_map(|(node_index, node)| {

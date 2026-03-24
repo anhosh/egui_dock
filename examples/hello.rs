@@ -8,10 +8,9 @@ use egui::{
     vec2, CentralPanel, ComboBox, CornerRadius, Frame, Slider, TopBottomPanel, Ui, ViewportBuilder,
     WidgetText,
 };
-use egui_dock::{tab_viewer::OnCloseResponse, NodePath};
 use egui_dock::{
-    AllowedSplits, DockArea, DockState, NodeIndex, OverlayType, Style, SurfaceIndex,
-    TabInteractionStyle, TabViewer,
+    tab_viewer::OnCloseResponse, AllowedSplits, DockArea, DockState, NodeIndex, NodePath,
+    OverlayType, Style, SurfaceIndex, TabInteractionStyle, TabViewer,
 };
 
 /// Adds a widget with a label next to it, can be given an extra parameter in order to show a hover text

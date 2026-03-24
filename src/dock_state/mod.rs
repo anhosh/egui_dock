@@ -1,3 +1,10 @@
+use std::ops;
+
+use egui::Rect;
+
+mod error;
+pub use error::{Error, Result};
+
 /// Wrapper around indices to the collection of surfaces inside a [`DockState`].
 pub mod surface_index;
 
@@ -10,9 +17,6 @@ pub mod translations;
 /// Window states which tells floating tabs how to be displayed inside their window,
 pub mod window_state;
 
-use std::ops;
-
-use egui::Rect;
 pub use surface::Surface;
 pub use surface_index::SurfaceIndex;
 use tree::node::LeafNode;
@@ -201,8 +205,6 @@ impl<Tab> DockState<Tab> {
     ///
     /// Returns the removed surface or `None` if it didn't exist.
     ///
-    /// # Panics
-    ///
     /// Panics if you try to remove the main surface: `SurfaceIndex::main()`.
     pub fn remove_surface(&mut self, surface_index: SurfaceIndex) -> Option<Surface<Tab>> {
         assert!(!surface_index.is_main());
@@ -219,58 +221,66 @@ impl<Tab> DockState<Tab> {
 
     /// Sets which is the active tab within a specific node on a given surface.
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// Panics if `path.surface` is not a valid surface.
-    ///
-    /// If the node at `path.node` is not a leaf or doesn't exist, this method does nothing.
+    /// Returns `Err` if `path.surface` is not a valid surface,
+    /// if the node at `path.node` is not a leaf or doesn't exist,
+    /// or if the tab index at `path.tab` doesn't exist within the leaf node.
     #[inline]
-    pub fn set_active_tab(&mut self, path: TabPath) {
-        if let Some(Node::Leaf(leaf)) = self[path.surface].nodes.get_mut(path.node.0) {
-            leaf.active = path.tab;
-        }
+    pub fn set_active_tab(&mut self, path: TabPath) -> Result {
+        let leaf = self.leaf_mut(path.node_path())?;
+        leaf.set_active_tab(path.tab)?;
+        Ok(())
     }
 
     /// Immutably borrows a node at the given path.
     ///
     /// This is the same as `&self[path]` but never panics.
-    pub fn node(&self, path: NodePath) -> Option<&Node<Tab>> {
+    pub fn node(&self, path: NodePath) -> Result<&Node<Tab>> {
         self.surfaces
-            .get(path.surface.0)?
-            .node_tree()?
+            .get(path.surface.0)
+            .ok_or(Error::InvalidSurface)?
+            .node_tree()
+            .ok_or(Error::EmptySurface)?
             .nodes
             .get(path.node.0)
+            .ok_or(Error::InvalidNode)
     }
 
     /// Mutably borrows a node at the given path.
     ///
     /// This is the same as `&mut self[path]` but never panics.
-    pub fn node_mut(&mut self, path: NodePath) -> Option<&mut Node<Tab>> {
+    pub fn node_mut(&mut self, path: NodePath) -> Result<&mut Node<Tab>> {
         self.surfaces
-            .get_mut(path.surface.0)?
-            .node_tree_mut()?
+            .get_mut(path.surface.0)
+            .ok_or(Error::InvalidSurface)?
+            .node_tree_mut()
+            .ok_or(Error::EmptySurface)?
             .nodes
             .get_mut(path.node.0)
+            .ok_or(Error::InvalidNode)
     }
 
     /// Immutably borrows a leaf node at the given path.
     ///
-    /// Returns `None` if the path is invalid or the node at the path is not a leaf.
-    pub fn leaf(&self, path: NodePath) -> Option<&LeafNode<Tab>> {
-        self.node(path).and_then(Node::get_leaf)
+    /// Returns `Err` if the path is invalid or the node at the path is not a leaf.
+    pub fn leaf(&self, path: NodePath) -> Result<&LeafNode<Tab>> {
+        self.node(path)?.get_leaf().ok_or(Error::NonLeafNode)
     }
 
     /// Mutably borrows a leaf node at the given path.
     ///
-    /// Returns `None` if the path is invalid or the node at the path is not a leaf.
-    pub fn leaf_mut(&mut self, path: NodePath) -> Option<&mut LeafNode<Tab>> {
-        self.node_mut(path).and_then(Node::get_leaf_mut)
+    /// Returns `Err` if the path is invalid or the node at the path is not a leaf.
+    pub fn leaf_mut(&mut self, path: NodePath) -> Result<&mut LeafNode<Tab>> {
+        self.node_mut(path)?
+            .get_leaf_mut()
+            .ok_or(Error::NonLeafNode)
     }
 
     /// Sets the currently focused leaf to `node_index` if the node at `node_index` is a leaf.
     #[inline]
     pub fn set_focused_node_and_surface(&mut self, path: NodePath) {
-        if self.leaf(path).is_some() {
+        if self.leaf(path).is_ok() {
             self.focused_surface = Some(path.surface);
             self[path.surface].set_focused_node(path.node);
         } else {
