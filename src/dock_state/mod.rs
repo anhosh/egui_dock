@@ -10,14 +10,13 @@ pub mod translations;
 /// Window states which tells floating tabs how to be displayed inside their window,
 pub mod window_state;
 
+use std::ops;
+
+use egui::Rect;
 pub use surface::Surface;
 pub use surface_index::SurfaceIndex;
 use tree::node::LeafNode;
 pub use window_state::WindowState;
-
-use std::ops;
-
-use egui::Rect;
 
 use crate::{
     Node, NodeIndex, NodePath, Split, TabDestination, TabIndex, TabInsert, TabPath, Translations,

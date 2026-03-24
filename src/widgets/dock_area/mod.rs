@@ -9,11 +9,11 @@ mod drag_and_drop;
 mod state;
 mod tab_removal;
 
-use crate::{dock_state::DockState, NodePath, Style, TabIndex, TabPath};
 pub use allowed_splits::AllowedSplits;
+use egui::{emath::*, Id, Modifiers};
 use tab_removal::TabRemoval;
 
-use egui::{emath::*, Id, Modifiers};
+use crate::{dock_state::DockState, NodePath, Style, TabIndex, TabPath};
 
 /// Displays a [`DockState`] in `egui`.
 pub struct DockArea<'tree, Tab> {

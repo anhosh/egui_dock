@@ -1,13 +1,15 @@
+use std::ops::RangeInclusive;
+
 use egui::{
     emath::TSTransform, epaint::TextShape, lerp, pos2, vec2, Align, Align2, Button, Color32,
     CornerRadius, CursorIcon, Frame, Id, Key, LayerId, Layout, NumExt, Order, Popup,
     PopupCloseBehavior, Rect, Response, ScrollArea, Sense, Shape, Stroke, StrokeKind, TextStyle,
     Ui, UiBuilder, Vec2, WidgetText,
 };
-use std::ops::RangeInclusive;
 
 use crate::dock_area::tab_removal::{ForcedRemoval, TabRemoval};
 use crate::node::LeafNode;
+use crate::tab_viewer::OnCloseResponse;
 use crate::NodePath;
 use crate::{
     dock_area::{
@@ -17,8 +19,6 @@ use crate::{
     utils::{fade_visuals, rect_set_size_centered, rect_stroke_box},
     DockArea, Node, NodeIndex, Style, SurfaceIndex, TabAddAlign, TabIndex, TabStyle, TabViewer,
 };
-
-use crate::tab_viewer::OnCloseResponse;
 
 impl<Tab> DockArea<'_, Tab> {
     pub(super) fn show_leaf(

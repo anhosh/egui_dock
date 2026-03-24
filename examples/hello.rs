@@ -8,7 +8,6 @@ use egui::{
     vec2, CentralPanel, ComboBox, CornerRadius, Frame, Slider, TopBottomPanel, Ui, ViewportBuilder,
     WidgetText,
 };
-
 use egui_dock::{tab_viewer::OnCloseResponse, NodePath};
 use egui_dock::{
     AllowedSplits, DockArea, DockState, NodeIndex, OverlayType, Style, SurfaceIndex,

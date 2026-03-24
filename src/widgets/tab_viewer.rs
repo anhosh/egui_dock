@@ -1,5 +1,6 @@
-use crate::{NodePath, TabStyle};
 use egui::{Id, Ui, WidgetText};
+
+use crate::{NodePath, TabStyle};
 
 /// Defines how a tab should behave and be rendered inside a [`Tree`](crate::Tree).
 pub trait TabViewer {

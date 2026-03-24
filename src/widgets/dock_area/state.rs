@@ -1,8 +1,7 @@
 use egui::{Context, Id, Pos2};
 
-use crate::{Style, SurfaceIndex};
-
 use super::drag_and_drop::{DragData, DragDropState, HoverData};
+use crate::{Style, SurfaceIndex};
 
 #[derive(Clone, Debug, Default)]
 pub(super) struct State {

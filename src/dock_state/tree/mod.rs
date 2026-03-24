@@ -20,21 +20,21 @@ pub mod node;
 /// Wrapper around indices to the collection of nodes inside a [`Tree`].
 pub mod node_index;
 
-pub use node::LeafNode;
-pub use node::Node;
-pub use node::SplitNode;
-pub use node_index::{NodeIndex, NodePath};
-pub use tab_index::{TabIndex, TabPath};
-pub use tab_iter::TabIter;
-
-use egui::ahash::HashSet;
-use egui::Rect;
 use std::{
     cmp::max,
     fmt,
     ops::{Index, IndexMut},
     slice::{Iter, IterMut},
 };
+
+use egui::ahash::HashSet;
+use egui::Rect;
+pub use node::LeafNode;
+pub use node::Node;
+pub use node::SplitNode;
+pub use node_index::{NodeIndex, NodePath};
+pub use tab_index::{TabIndex, TabPath};
+pub use tab_iter::TabIter;
 
 use crate::SurfaceIndex;
 

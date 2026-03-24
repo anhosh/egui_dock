@@ -1,12 +1,13 @@
 use std::ops::BitOrAssign;
 
-use crate::{
-    AllowedSplits, NodeIndex, NodePath, Split, Style, SurfaceIndex, TabDestination, TabInsert,
-    TabPath,
-};
 use egui::{
     emath::{inverse_lerp, GuiRounding},
     vec2, Context, Id, LayerId, NumExt, Order, Painter, Pos2, Rect, Stroke, StrokeKind, Ui, Vec2,
+};
+
+use crate::{
+    AllowedSplits, NodeIndex, NodePath, Split, Style, SurfaceIndex, TabDestination, TabInsert,
+    TabPath,
 };
 
 #[derive(Debug, Clone)]

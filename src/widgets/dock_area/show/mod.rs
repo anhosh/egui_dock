@@ -1,9 +1,8 @@
+use duplicate::duplicate;
 use egui::{
     CentralPanel, Color32, Context, CornerRadius, CursorIcon, EventFilter, Frame, Key, Pos2, Rect,
     Sense, StrokeKind, Ui, Vec2,
 };
-
-use duplicate::duplicate;
 use paste::paste;
 
 use super::{drag_and_drop::TreeComponent, state::State, tab_removal::TabRemoval};

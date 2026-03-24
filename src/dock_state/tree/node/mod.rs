@@ -1,5 +1,6 @@
-use crate::{Split, TabIndex};
 use egui::Rect;
+
+use crate::{Split, TabIndex};
 
 mod leaf;
 mod split;
