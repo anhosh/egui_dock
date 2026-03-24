@@ -40,6 +40,11 @@ impl From<TabPath> for NodePath {
 }
 
 impl TabPath {
+    /// Creates a new fully qualified path to a tab.
+    pub const fn new(surface: SurfaceIndex, node: NodeIndex, tab: TabIndex) -> Self {
+        Self { surface, node, tab }
+    }
+
     /// Get the node path components.
     pub fn node_path(self) -> NodePath {
         self.into()

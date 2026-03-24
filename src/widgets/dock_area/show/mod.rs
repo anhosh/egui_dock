@@ -381,12 +381,10 @@ impl<Tab> DockArea<'_, Tab> {
         let style = self.style.as_ref().unwrap();
         let pixels_per_point = ui.ctx().pixels_per_point();
 
-        let left_collapsed_count =
-            self.dock_state[path.surface][path.node.left()].collapsed_leaf_count();
-        let right_collapsed_count =
-            self.dock_state[path.surface][path.node.right()].collapsed_leaf_count();
-        let left_collapsed = self.dock_state[path.surface][path.node.left()].is_collapsed();
-        let right_collapsed = self.dock_state[path.surface][path.node.right()].is_collapsed();
+        let left_collapsed_count = self.dock_state[path.left_node()].collapsed_leaf_count();
+        let right_collapsed_count = self.dock_state[path.right_node()].collapsed_leaf_count();
+        let left_collapsed = self.dock_state[path.left_node()].is_collapsed();
+        let right_collapsed = self.dock_state[path.right_node()].is_collapsed();
 
         if left_collapsed || right_collapsed {
             if let Node::Vertical(split) = &mut self.dock_state[path.surface][path.node] {
@@ -414,8 +412,8 @@ impl<Tab> DockArea<'_, Tab> {
                     let right = rect
                         .intersect(Rect::everything_below(right_separator_border))
                         .intersect(max_rect);
-                    self.dock_state[path.surface][path.node.left()].set_rect(left);
-                    self.dock_state[path.surface][path.node.right()].set_rect(right);
+                    self.dock_state[path.left_node()].set_rect(left);
+                    self.dock_state[path.right_node()].set_rect(right);
                 } else {
                     // Only right collapsed
                     let border_y =
@@ -436,8 +434,8 @@ impl<Tab> DockArea<'_, Tab> {
                     let right = rect
                         .intersect(Rect::everything_below(right_separator_border))
                         .intersect(max_rect);
-                    self.dock_state[path.surface][path.node.left()].set_rect(left);
-                    self.dock_state[path.surface][path.node.right()].set_rect(right);
+                    self.dock_state[path.left_node()].set_rect(left);
+                    self.dock_state[path.right_node()].set_rect(right);
                 }
                 return;
             }
@@ -477,8 +475,8 @@ impl<Tab> DockArea<'_, Tab> {
                     let right = rect.intersect(Rect::[<everything_ right_of>](right_separator_border)).intersect(max_rect);
                 }
 
-                self.dock_state[path.surface][path.node.left()].set_rect(left);
-                self.dock_state[path.surface][path.node.right()].set_rect(right);
+                self.dock_state[path.left_node()].set_rect(left);
+                self.dock_state[path.right_node()].set_rect(right);
             }
         }
     }
@@ -487,8 +485,8 @@ impl<Tab> DockArea<'_, Tab> {
         assert!(self.dock_state[path.surface][path.node].is_parent());
 
         // If either of the children is collapsed, we don't want the user to interact with the separator
-        if (self.dock_state[path.surface][path.node.left()].is_collapsed()
-            || self.dock_state[path.surface][path.node.right()].is_collapsed())
+        if (self.dock_state[path.left_node()].is_collapsed()
+            || self.dock_state[path.right_node()].is_collapsed())
             && self.dock_state[path.surface][path.node].is_vertical()
         {
             return;

@@ -107,6 +107,35 @@ pub struct NodePath {
     pub node: NodeIndex,
 }
 
+impl NodePath {
+    /// Points to the root node of the main surface.
+    pub const MAIN_ROOT: Self = Self {
+        surface: SurfaceIndex::main(),
+        node: NodeIndex::root(),
+    };
+
+    /// Creates a fully qualified new path to a node.
+    pub const fn new(surface: SurfaceIndex, node: NodeIndex) -> Self {
+        Self { surface, node }
+    }
+
+    /// Returns the path to the node to the left of the current one.
+    pub const fn left_node(self) -> Self {
+        Self {
+            surface: self.surface,
+            node: self.node.left(),
+        }
+    }
+
+    /// Returns the path to the node to the right of the current one.
+    pub const fn right_node(self) -> Self {
+        Self {
+            surface: self.surface,
+            node: self.node.right(),
+        }
+    }
+}
+
 impl From<NodePath> for SurfaceIndex {
     fn from(path: NodePath) -> Self {
         path.surface
