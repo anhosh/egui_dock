@@ -54,17 +54,17 @@ impl Default for MyApp {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let mut added_nodes = Vec::new();
         DockArea::new(&mut self.tree)
             .show_add_buttons(true)
             .style({
-                let mut style = Style::from_egui(ctx.style().as_ref());
+                let mut style = Style::from_egui(ui.style().as_ref());
                 style.tab_bar.fill_tab_bar = true;
                 style
             })
-            .show(
-                ctx,
+            .show_inside(
+                ui,
                 &mut TabViewer {
                     added_nodes: &mut added_nodes,
                 },

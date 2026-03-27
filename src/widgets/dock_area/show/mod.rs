@@ -22,36 +22,23 @@ mod window_surface;
 impl<Tab> DockArea<'_, Tab> {
     /// Show the `DockArea` at the top level.
     ///
-    /// This is the same as doing:
+    /// Deprecated: use [`show_inside`](Self::show_inside) instead.
+    /// With eframe 0.34+, implement `App::ui` and call `show_inside` directly:
     ///
+    /// ```ignore
+    /// fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+    ///     DockArea::new(&mut self.tree)
+    ///         .style(Style::from_egui(ui.style().as_ref()))
+    ///         .show_inside(ui, &mut tab_viewer);
+    /// }
     /// ```
-    /// # use egui_dock::{DockArea, DockState};
-    /// # use egui::{CentralPanel, Frame};
-    /// # struct TabViewer {}
-    /// # impl egui_dock::TabViewer for TabViewer {
-    /// #     type Tab = String;
-    /// #     fn title(&mut self, tab: &mut Self::Tab) -> egui::WidgetText { (&*tab).into() }
-    /// #     fn ui(&mut self, ui: &mut egui::Ui, tab: &mut Self::Tab) {}
-    /// # }
-    /// # let mut tree: DockState<String> = DockState::new(vec![]);
-    /// # let mut tab_viewer = TabViewer {};
-    /// # egui::__run_test_ctx(|ctx| {
-    /// CentralPanel::default()
-    ///     .frame(Frame::central_panel(&ctx.style()).inner_margin(0.))
-    ///     .show(ctx, |ui| {
-    ///         DockArea::new(&mut tree).show_inside(ui, &mut tab_viewer);
-    ///     });
-    /// # });
-    /// ```
-    ///
-    /// So you can't use the [`CentralPanel::show`] when using `DockArea`'s one.
-    ///
-    /// See also [`show_inside`](Self::show_inside).
     #[inline]
+    #[deprecated = "Use show_inside() instead — with eframe 0.34+, implement App::ui which gives &mut Ui directly"]
+    #[allow(deprecated)]
     pub fn show(self, ctx: &Context, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
         CentralPanel::default()
             .frame(
-                Frame::central_panel(&ctx.style())
+                Frame::central_panel(&ctx.global_style())
                     .inner_margin(0.)
                     .fill(Color32::TRANSPARENT),
             )

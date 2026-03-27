@@ -131,14 +131,14 @@ impl Default for MyApp {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let mut added_nodes = Vec::new();
         DockArea::new(&mut self.dock_state)
             .show_add_buttons(true)
             .show_add_popup(true)
-            .style(Style::from_egui(ctx.style().as_ref()))
-            .show(
-                ctx,
+            .style(Style::from_egui(ui.style().as_ref()))
+            .show_inside(
+                ui,
                 &mut TabViewer {
                     added_nodes: &mut added_nodes,
                 },

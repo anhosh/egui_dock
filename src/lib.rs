@@ -68,6 +68,7 @@
 //!
 //! # let mut my_tabs = MyTabs::new();
 //! # egui::__run_test_ctx(|ctx| {
+//! #     #[allow(deprecated)]
 //! #     egui::CentralPanel::default().show(ctx, |ui| my_tabs.ui(ui));
 //! # });
 //! ```
@@ -93,6 +94,7 @@
 //! #     fn ui(&mut self, ui: &mut Ui, tab: &mut Self::Tab) {}
 //! # }
 //! # egui::__run_test_ctx(|ctx| {
+//! # #[allow(deprecated)]
 //! # egui::CentralPanel::default().show(ctx, |ui| {
 //! # let mut dock_state = DockState::new(vec![]);
 //! // Inherit the look and feel from egui.
