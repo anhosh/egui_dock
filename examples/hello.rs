@@ -5,8 +5,7 @@ use std::collections::HashSet;
 use eframe::NativeOptions;
 use egui::{
     color_picker::{color_edit_button_srgba, Alpha},
-    vec2, ComboBox, CornerRadius, Panel, Slider, Ui, ViewportBuilder,
-    WidgetText,
+    vec2, ComboBox, CornerRadius, Panel, Slider, Ui, ViewportBuilder, WidgetText,
 };
 
 use egui_dock::tab_viewer::OnCloseResponse;
