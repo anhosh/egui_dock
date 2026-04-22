@@ -62,6 +62,12 @@ impl Translations {
     }
 }
 
+impl Default for Translations {
+    fn default() -> Self {
+        Self::english()
+    }
+}
+
 impl TabContextMenuTranslations {
     /// Default English translations.
     pub fn english() -> Self {
