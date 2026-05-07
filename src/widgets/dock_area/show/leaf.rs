@@ -7,6 +7,7 @@ use egui::{
     Ui, UiBuilder, Vec2, WidgetText,
 };
 
+use crate::dock_area::events::DockEvent;
 use crate::dock_area::tab_removal::{ForcedRemoval, TabRemoval};
 use crate::node::LeafNode;
 use crate::tab_viewer::OnCloseResponse;
@@ -407,7 +408,15 @@ impl<Tab> DockArea<'_, Tab> {
                                     ForcedRemoval(false),
                                 )),
                                 OnCloseResponse::Focus => {
-                                    leaf.active = tab_index;
+                                    // Only count as a finalised event if `active`
+                                    // actually changes; the focus push at the end
+                                    // of the render pass is guarded similarly so
+                                    // a no-op close-on-already-active-tab does not
+                                    // emit a committed event.
+                                    if leaf.active != tab_index {
+                                        leaf.active = tab_index;
+                                        self.events.push(DockEvent::LayoutCommitted);
+                                    }
                                     self.new_focused = Some(path);
                                 }
                                 OnCloseResponse::Ignore => (),
@@ -460,7 +469,10 @@ impl<Tab> DockArea<'_, Tab> {
                 || (tabs_ui.memory(|m| m.has_focus(title_id))
                     && tabs_ui.input(|i| i.key_pressed(Key::Enter) || i.key_pressed(Key::Space)))
             {
-                leaf.active = tab_index;
+                if leaf.active != tab_index {
+                    leaf.active = tab_index;
+                    self.events.push(DockEvent::LayoutCommitted);
+                }
                 self.new_focused = Some(path);
             }
 
@@ -759,6 +771,7 @@ impl<Tab> DockArea<'_, Tab> {
                 self.dock_state[path].set_collapsed(!collapsed);
                 self.dock_state[path.surface].node_update_collapsed(path.node);
                 self.window_update_collapsed(path);
+                self.events.push(DockEvent::LayoutCommitted);
             }
         }
 

@@ -5,7 +5,10 @@ use egui::{
 };
 use paste::paste;
 
-use super::{drag_and_drop::TreeComponent, state::State, tab_removal::TabRemoval};
+use super::{
+    drag_and_drop::TreeComponent, events::DockEvent, state::State, tab_removal::TabRemoval,
+    DockAreaResponse,
+};
 use crate::dock_area::tab_removal::ForcedRemoval;
 use crate::tab_viewer::OnCloseResponse;
 use crate::NodePath;
@@ -49,8 +52,20 @@ impl<Tab> DockArea<'_, Tab> {
 
     /// Shows the docking hierarchy inside a [`Ui`].
     ///
-    /// See also [`show`](Self::show).
-    pub fn show_inside(mut self, ui: &mut Ui, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
+    /// See also [`show`](Self::show) and
+    /// [`show_inside_with_response`](Self::show_inside_with_response).
+    #[inline]
+    pub fn show_inside(self, ui: &mut Ui, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
+        let _ = self.show_inside_with_response(ui, tab_viewer);
+    }
+
+    /// Same as [`show_inside`](Self::show_inside) but returns a
+    /// [`DockAreaResponse`] describing what changed during this render pass.
+    pub fn show_inside_with_response(
+        mut self,
+        ui: &mut Ui,
+        tab_viewer: &mut impl TabViewer<Tab = Tab>,
+    ) -> DockAreaResponse {
         self.style
             .get_or_insert(Style::from_egui(ui.style().as_ref()));
         self.window_bounds.get_or_insert(ui.ctx().content_rect());
@@ -84,6 +99,7 @@ impl<Tab> DockArea<'_, Tab> {
                         }
                     };
                     self.dock_state.move_tab(source, destination);
+                    self.events.push(DockEvent::LayoutCommitted);
                 }
             }
         }
@@ -120,15 +136,18 @@ impl<Tab> DockArea<'_, Tab> {
                 TabRemoval::Tab(path, ForcedRemoval(is_forced)) => {
                     if is_forced {
                         self.dock_state.remove_tab(path);
+                        self.events.push(DockEvent::LayoutCommitted);
                     } else {
                         let leaf = &mut self.dock_state.leaf_mut(path.node_path()).unwrap();
                         match tab_viewer.on_close(&mut leaf.tabs[path.tab.0]) {
                             OnCloseResponse::Close => {
                                 self.dock_state.remove_tab(path);
+                                self.events.push(DockEvent::LayoutCommitted);
                             }
                             OnCloseResponse::Focus => {
                                 leaf.active = path.tab;
                                 self.new_focused = Some(path.node_path());
+                                self.events.push(DockEvent::LayoutCommitted);
                             }
                             OnCloseResponse::Ignore => {
                                 // no-op
@@ -147,6 +166,7 @@ impl<Tab> DockArea<'_, Tab> {
                     }
                     if all_tabs_are_closable {
                         self.dock_state.remove_leaf(path);
+                        self.events.push(DockEvent::LayoutCommitted);
                     }
                 }
                 TabRemoval::Window(surface) => {
@@ -162,6 +182,7 @@ impl<Tab> DockArea<'_, Tab> {
                     }
                     if all_tabs_are_closable {
                         self.dock_state.remove_surface(surface);
+                        self.events.push(DockEvent::LayoutCommitted);
                     }
                 }
             }
@@ -178,13 +199,26 @@ impl<Tab> DockArea<'_, Tab> {
                         .map_or(Vec2::new(100., 150.), |rect| rect.size()),
                 ),
             );
+            self.events.push(DockEvent::LayoutCommitted);
         }
 
         if let Some(focused) = self.new_focused {
+            // `new_focused` is set unconditionally on any click within a leaf
+            // body and on tab-title clicks, even when the leaf is already
+            // focused. Only emit a finalised event if the focus actually
+            // moved — otherwise idle clicks inside already-focused leaves
+            // would emit empty events.
+            let already_focused = self.dock_state.focused_leaf() == Some(focused);
             self.dock_state.set_focused_node_and_surface(focused);
+            if !already_focused {
+                self.events.push(DockEvent::LayoutCommitted);
+            }
         }
 
         state.store(ui.ctx(), self.id);
+        DockAreaResponse {
+            events: std::mem::take(&mut self.events),
+        }
     }
 
     /// Returns some when windows are fading, and what surface index is being hovered over
@@ -556,17 +590,46 @@ impl<Tab> DockArea<'_, Tab> {
                 // Update 'fraction' interaction after drawing separator,
                 // otherwise it may overlap on other separator / bodies when
                 // shrunk fast.
+                //
+                // Mouse drag is *continuous*: `drag_delta()` is non-zero on
+                // every frame the user holds and moves the separator, and
+                // `split.fraction` updates live so the UI tracks the cursor.
+                // Emitting `LayoutCommitted` per frame here would force
+                // consumers to dedupe an "interaction in progress" stream
+                // themselves; we emit `SeparatorDragging` instead and let
+                // `drag_stopped()` below produce a single `LayoutCommitted`
+                // per completed drag.
+                //
+                // Arrow-key nudges (`arrow_key_offset.is_some()`) are atomic
+                // per keypress, so each one is a finalised event right away.
                 let range = rect.max.dim_point - rect.min.dim_point;
                 if range > 0.0 {
                     let min = (style.separator.extra / range).min(1.0);
                     let max = 1.0 - min;
                     let (min, max) = (min.min(max), max.max(min));
+                    let is_arrow = arrow_key_offset.is_some();
                     let delta = arrow_key_offset.unwrap_or(response.drag_delta()).dim_point;
-                    split.fraction = (split.fraction + delta / range).clamp(min, max);
+                    let new_fraction = (split.fraction + delta / range).clamp(min, max);
+                    if split.fraction != new_fraction {
+                        split.fraction = new_fraction;
+                        if is_arrow {
+                            self.events.push(DockEvent::LayoutCommitted);
+                        } else {
+                            self.events.push(DockEvent::SeparatorDragging);
+                        }
+                    }
                 }
 
-                if response.double_clicked() {
+                // egui only flips `drag_stopped` after `drag_started`, so a
+                // simple click without motion does not reach this branch:
+                // one `LayoutCommitted` per completed mouse drag.
+                if response.drag_stopped() {
+                    self.events.push(DockEvent::LayoutCommitted);
+                }
+
+                if response.double_clicked() && split.fraction != 0.5 {
                     split.fraction = 0.5;
+                    self.events.push(DockEvent::LayoutCommitted);
                 }
             }
         }

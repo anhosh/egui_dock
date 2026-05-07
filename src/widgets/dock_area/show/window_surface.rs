@@ -4,7 +4,7 @@ use egui::{
 };
 
 use crate::{
-    dock_area::{state::State, tab_removal::TabRemoval},
+    dock_area::{events::DockEvent, state::State, tab_removal::TabRemoval},
     utils::{fade_visuals, rect_set_size_centered},
     DockArea, NodeIndex, Style, SurfaceIndex, TabViewer,
 };
@@ -284,5 +284,6 @@ impl<Tab> DockArea<'_, Tab> {
                 window_state.toggle_minimized();
             }
         }
+        self.events.push(DockEvent::LayoutCommitted);
     }
 }

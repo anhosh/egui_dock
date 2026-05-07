@@ -6,10 +6,12 @@ mod show;
 // Various components of the `DockArea` which is used when rendering
 mod allowed_splits;
 mod drag_and_drop;
+mod events;
 mod state;
 mod tab_removal;
 
 pub use allowed_splits::AllowedSplits;
+pub use events::{DockAreaResponse, DockEvent};
 use egui::{emath::*, Id, Modifiers};
 use tab_removal::TabRemoval;
 
@@ -41,6 +43,9 @@ pub struct DockArea<'tree, Tab> {
     to_detach: Vec<TabPath>,
     new_focused: Option<NodePath>,
     tab_hover_rect: Option<(Rect, TabIndex)>,
+    /// Events accumulated during this render pass, drained into
+    /// [`DockAreaResponse::events`] at the end of `show_inside_with_response`.
+    events: Vec<DockEvent>,
 }
 
 // Builder
@@ -63,6 +68,7 @@ impl<'tree, Tab> DockArea<'tree, Tab> {
             to_detach: Vec::new(),
             new_focused: None,
             tab_hover_rect: None,
+            events: Vec::new(),
             window_bounds: None,
             show_window_close_buttons: true,
             show_window_collapse_buttons: true,
