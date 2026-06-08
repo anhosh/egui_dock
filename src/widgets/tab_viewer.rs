@@ -7,6 +7,13 @@ pub trait TabViewer {
     /// The type of tab in which you can store state to be drawn in your tabs.
     type Tab;
 
+    /// Unique ID for this tab.
+    ///
+    /// Assuming `Tab` implements `Hash`, you can simply do `Id::new(tab)`.
+    /// If that is not possible, but tab names are guaranteed to be unique,
+    /// one could also implement this as `Id::new(self.title(tab).text())`.
+    fn id(&mut self, tab: &mut Self::Tab) -> Id;
+
     /// The title to be displayed in the tab bar.
     fn title(&mut self, tab: &mut Self::Tab) -> WidgetText;
 
@@ -18,13 +25,6 @@ pub trait TabViewer {
     /// `_path` specifies which [`Surface`](crate::Surface) and [`Node`](crate::Node)
     /// that this particular context menu belongs to.
     fn context_menu(&mut self, _ui: &mut Ui, _tab: &mut Self::Tab, _path: NodePath) {}
-
-    /// Unique ID for this tab.
-    ///
-    /// If not implemented, uses tab title text as an ID source.
-    fn id(&mut self, tab: &mut Self::Tab) -> Id {
-        Id::new(self.title(tab).text())
-    }
 
     /// Called after each tab button is shown, so you can add a tooltip, check for clicks, etc.
     fn on_tab_button(&mut self, _tab: &mut Self::Tab, _response: &egui::Response) {}

@@ -87,6 +87,10 @@ struct MyApp {
 impl TabViewer for MyContext {
     type Tab = String;
 
+    fn id(&mut self, tab: &mut Self::Tab) -> egui::Id {
+        egui::Id::new(tab)
+    }
+
     fn title(&mut self, tab: &mut Self::Tab) -> WidgetText {
         tab.as_str().into()
     }

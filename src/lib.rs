@@ -15,7 +15,7 @@
 //!
 //! ```rust
 //! use egui_dock::{DockArea, DockState, NodeIndex, Style, TabViewer};
-//! use egui::{Ui, WidgetText};
+//! use egui::{Id, Ui, WidgetText};
 //!
 //! // First, let's pick a type that we'll use to attach some data to each tab.
 //! // It can be any type.
@@ -29,6 +29,11 @@
 //! impl TabViewer for MyTabViewer {
 //!     // This associated type is used to attach some data to each tab.
 //!     type Tab = Tab;
+//!
+//!     // Returns the unique ID for the `tab`.
+//!     fn id(&mut self, tab: &mut Self::Tab) -> Id {
+//!         Id::new(tab)
+//!     }
 //!
 //!     // Returns the current `tab`'s title.
 //!     fn title(&mut self, tab: &mut Self::Tab) -> WidgetText {
@@ -86,10 +91,11 @@
 //!
 //! ```rust
 //! # use egui_dock::{DockArea, DockState, OverlayType, Style, TabAddAlign, TabViewer};
-//! # use egui::{Ui, WidgetText};
+//! # use egui::{Id, Ui, WidgetText};
 //! # struct MyTabViewer;
 //! # impl TabViewer for MyTabViewer {
 //! #     type Tab = ();
+//! #     fn id(&mut self, tab: &mut Self::Tab) -> Id { Id::new(tab) }
 //! #     fn title(&mut self, tab: &mut Self::Tab) -> WidgetText { WidgetText::default() }
 //! #     fn ui(&mut self, ui: &mut Ui, tab: &mut Self::Tab) {}
 //! # }
