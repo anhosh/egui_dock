@@ -1,12 +1,15 @@
 # egui_dock changelog
 
-## egui_dock 0.19.1 - 2026/03/31
+
+## egui_dock 0.20.0 - 2026/06/27
 
 ### Breaking changes
 
 - Upgraded to egui 0.35. ([#326](https://github.com/anhosh/egui_dock/pull/326))
 
-### Changed
+## egui_dock 0.19.1 - 2026/03/31
+
+### Fixed
 
 - Corrected outdated documentation. ([#326](https://github.com/anhosh/egui_dock/pull/326))
 
