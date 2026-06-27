@@ -10,10 +10,10 @@ mod state;
 mod tab_removal;
 
 pub use allowed_splits::AllowedSplits;
-use egui::{emath::*, Id, Modifiers};
+use egui::{Id, Modifiers, emath::*};
 use tab_removal::TabRemoval;
 
-use crate::{dock_state::DockState, NodePath, Style, TabIndex, TabPath};
+use crate::{NodePath, Style, TabIndex, TabPath, dock_state::DockState};
 
 /// Displays a [`DockState`] in `egui`.
 pub struct DockArea<'tree, Tab> {

@@ -5,13 +5,13 @@ use egui::{
 use paste::paste;
 
 use super::{drag_and_drop::TreeComponent, state::State, tab_removal::TabRemoval};
+use crate::NodePath;
 use crate::dock_area::tab_removal::ForcedRemoval;
 use crate::tab_viewer::OnCloseResponse;
-use crate::NodePath;
 use crate::{
-    utils::{expand_to_pixel, fade_dock_style, map_to_pixel},
     AllowedSplits, DockArea, Node, NodeIndex, OverlayType, Style, SurfaceIndex, TabDestination,
     TabViewer,
+    utils::{expand_to_pixel, fade_dock_style, map_to_pixel},
 };
 
 mod leaf;
@@ -46,17 +46,18 @@ impl<Tab> DockArea<'_, Tab> {
             state.set_drag_and_drop(source, hover, ui.ctx(), style);
             let tab_dst = self.show_drag_drop_overlay(ui, &mut state, tab_viewer);
             if ui.input(|i| i.pointer.primary_released())
-                && let Some(destination) = tab_dst {
-                    let source = {
-                        match state.dnd.as_ref().unwrap().drag.src {
-                            TreeComponent::Tab(src) => src,
-                            _ => todo!(
-                                "collections of tabs, like nodes and surfaces can't be docked (yet)"
-                            ),
-                        }
-                    };
-                    self.dock_state.move_tab(source, destination);
-                }
+                && let Some(destination) = tab_dst
+            {
+                let source = {
+                    match state.dnd.as_ref().unwrap().drag.src {
+                        TreeComponent::Tab(src) => src,
+                        _ => todo!(
+                            "collections of tabs, like nodes and surfaces can't be docked (yet)"
+                        ),
+                    }
+                };
+                self.dock_state.move_tab(source, destination);
+            }
         }
 
         if ui.input(|i| i.pointer.primary_released()) {
@@ -167,10 +168,11 @@ impl<Tab> DockArea<'_, Tab> {
         ctx: &Context,
     ) -> Option<SurfaceIndex> {
         if let Some(dnd_state) = &state.dnd
-            && dnd_state.is_locked(self.style.as_ref().unwrap(), ctx) {
-                state.window_fade =
-                    Some((ctx.input(|i| i.time), dnd_state.hover.dst.surface_address()));
-            }
+            && dnd_state.is_locked(self.style.as_ref().unwrap(), ctx)
+        {
+            state.window_fade =
+                Some((ctx.input(|i| i.time), dnd_state.hover.dst.surface_address()));
+        }
 
         state.window_fade.and_then(|(time, surface)| {
             ctx.request_repaint();
@@ -343,58 +345,57 @@ impl<Tab> DockArea<'_, Tab> {
         let right_collapsed = self.dock_state[path.right_node()].is_collapsed();
 
         if (left_collapsed || right_collapsed)
-            && let Node::Vertical(split) = &mut self.dock_state[path.surface][path.node] {
-                let rect = split.rect();
-                debug_assert!(!rect.any_nan() && rect.is_finite());
-                let rect = expand_to_pixel(rect, pixels_per_point);
+            && let Node::Vertical(split) = &mut self.dock_state[path.surface][path.node]
+        {
+            let rect = split.rect();
+            debug_assert!(!rect.any_nan() && rect.is_finite());
+            let rect = expand_to_pixel(rect, pixels_per_point);
 
-                if left_collapsed {
-                    // EITHER only left collapsed OR left and right both collapsed
-                    let border_y =
-                        rect.min.y + (left_collapsed_count as f32) * style.tab_bar.height;
-                    let left_separator_border = map_to_pixel(
-                        border_y - style.separator.width * 0.5,
-                        pixels_per_point,
-                        f32::round,
-                    );
-                    let right_separator_border = map_to_pixel(
-                        border_y + style.separator.width * 0.5,
-                        pixels_per_point,
-                        f32::round,
-                    );
-                    let left = rect
-                        .intersect(Rect::everything_above(left_separator_border))
-                        .intersect(max_rect);
-                    let right = rect
-                        .intersect(Rect::everything_below(right_separator_border))
-                        .intersect(max_rect);
-                    self.dock_state[path.left_node()].set_rect(left);
-                    self.dock_state[path.right_node()].set_rect(right);
-                } else {
-                    // Only right collapsed
-                    let border_y =
-                        rect.max.y - (right_collapsed_count as f32) * style.tab_bar.height;
-                    let left_separator_border = map_to_pixel(
-                        border_y - style.separator.width * 0.5,
-                        pixels_per_point,
-                        f32::round,
-                    );
-                    let right_separator_border = map_to_pixel(
-                        border_y + style.separator.width * 0.5,
-                        pixels_per_point,
-                        f32::round,
-                    );
-                    let left = rect
-                        .intersect(Rect::everything_above(left_separator_border))
-                        .intersect(max_rect);
-                    let right = rect
-                        .intersect(Rect::everything_below(right_separator_border))
-                        .intersect(max_rect);
-                    self.dock_state[path.left_node()].set_rect(left);
-                    self.dock_state[path.right_node()].set_rect(right);
-                }
-                return;
+            if left_collapsed {
+                // EITHER only left collapsed OR left and right both collapsed
+                let border_y = rect.min.y + (left_collapsed_count as f32) * style.tab_bar.height;
+                let left_separator_border = map_to_pixel(
+                    border_y - style.separator.width * 0.5,
+                    pixels_per_point,
+                    f32::round,
+                );
+                let right_separator_border = map_to_pixel(
+                    border_y + style.separator.width * 0.5,
+                    pixels_per_point,
+                    f32::round,
+                );
+                let left = rect
+                    .intersect(Rect::everything_above(left_separator_border))
+                    .intersect(max_rect);
+                let right = rect
+                    .intersect(Rect::everything_below(right_separator_border))
+                    .intersect(max_rect);
+                self.dock_state[path.left_node()].set_rect(left);
+                self.dock_state[path.right_node()].set_rect(right);
+            } else {
+                // Only right collapsed
+                let border_y = rect.max.y - (right_collapsed_count as f32) * style.tab_bar.height;
+                let left_separator_border = map_to_pixel(
+                    border_y - style.separator.width * 0.5,
+                    pixels_per_point,
+                    f32::round,
+                );
+                let right_separator_border = map_to_pixel(
+                    border_y + style.separator.width * 0.5,
+                    pixels_per_point,
+                    f32::round,
+                );
+                let left = rect
+                    .intersect(Rect::everything_above(left_separator_border))
+                    .intersect(max_rect);
+                let right = rect
+                    .intersect(Rect::everything_below(right_separator_border))
+                    .intersect(max_rect);
+                self.dock_state[path.left_node()].set_rect(left);
+                self.dock_state[path.right_node()].set_rect(right);
             }
+            return;
+        }
 
         duplicate! {
             [

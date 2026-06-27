@@ -1,23 +1,23 @@
 use std::ops::RangeInclusive;
 
 use egui::{
-    emath::TSTransform, epaint::TextShape, lerp, pos2, vec2, Align, Align2, Button, Color32,
-    CornerRadius, CursorIcon, Frame, Id, Key, LayerId, Layout, NumExt, Order, Popup,
-    PopupCloseBehavior, Rect, Response, ScrollArea, Sense, Shape, Stroke, StrokeKind, TextStyle,
-    Ui, UiBuilder, Vec2, WidgetText,
+    Align, Align2, Button, Color32, CornerRadius, CursorIcon, Frame, Id, Key, LayerId, Layout,
+    NumExt, Order, Popup, PopupCloseBehavior, Rect, Response, ScrollArea, Sense, Shape, Stroke,
+    StrokeKind, TextStyle, Ui, UiBuilder, Vec2, WidgetText, emath::TSTransform, epaint::TextShape,
+    lerp, pos2, vec2,
 };
 
+use crate::NodePath;
 use crate::dock_area::tab_removal::{ForcedRemoval, TabRemoval};
 use crate::node::LeafNode;
 use crate::tab_viewer::OnCloseResponse;
-use crate::NodePath;
 use crate::{
+    DockArea, Node, NodeIndex, Style, SurfaceIndex, TabAddAlign, TabIndex, TabStyle, TabViewer,
     dock_area::{
         drag_and_drop::{DragData, DragDropState, HoverData, TreeComponent},
         state::State,
     },
     utils::{fade_visuals, rect_set_size_centered, rect_stroke_box},
-    DockArea, Node, NodeIndex, Style, SurfaceIndex, TabAddAlign, TabIndex, TabStyle, TabViewer,
 };
 
 impl<Tab> DockArea<'_, Tab> {
@@ -1125,9 +1125,10 @@ impl<Tab> DockArea<'_, Tab> {
                 leaf.scroll -=
                     scroll_bar_handle_response.drag_delta().x * points_to_scroll_coefficient;
 
-                if let Some(pos) = state.last_hover_pos && scroll_bar_rect.contains(pos) {
-                    leaf.scroll += ui
-                        .input(|i| i.smooth_scroll_delta.y + i.smooth_scroll_delta.x)
+                if let Some(pos) = state.last_hover_pos
+                    && scroll_bar_rect.contains(pos)
+                {
+                    leaf.scroll += ui.input(|i| i.smooth_scroll_delta.y + i.smooth_scroll_delta.x)
                         * points_to_scroll_coefficient;
                 }
 
@@ -1188,14 +1189,13 @@ impl<Tab> DockArea<'_, Tab> {
 
             if ui.input(|i| i.pointer.any_click())
                 && let Some(pos) = state.last_hover_pos
-                    && body_rect.contains(pos)
-                        && Some(ui.layer_id()) == ui.ctx().layer_id_at(pos)
-                    {
-                        self.new_focused = Some(path);
-                    }
+                && body_rect.contains(pos)
+                && Some(ui.layer_id()) == ui.ctx().layer_id_at(pos)
+            {
+                self.new_focused = Some(path);
+            }
 
-            let (style, fade_factor) =
-                fade.unwrap_or_else(|| (self.style.as_ref().unwrap(), 1.0));
+            let (style, fade_factor) = fade.unwrap_or_else(|| (self.style.as_ref().unwrap(), 1.0));
             let tabs_styles = tab_viewer.tab_style_override(tab, &style.tab);
 
             let tabs_style = tabs_styles.as_ref().unwrap_or(&style.tab);

@@ -1,4 +1,4 @@
-use egui::{ecolor::*, CornerRadius, Margin, Stroke};
+use egui::{CornerRadius, Margin, Stroke, ecolor::*};
 
 /// Left or right alignment for tab add button.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

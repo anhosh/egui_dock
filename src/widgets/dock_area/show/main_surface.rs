@@ -1,11 +1,11 @@
 use egui::{Sense, Ui};
 
 use crate::{
+    DockArea, SurfaceIndex, TabViewer,
     dock_area::{
         drag_and_drop::{HoverData, TreeComponent},
         state::State,
     },
-    DockArea, SurfaceIndex, TabViewer,
 };
 
 impl<Tab> DockArea<'_, Tab> {
