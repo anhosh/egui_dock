@@ -45,8 +45,8 @@ impl<Tab> DockArea<'_, Tab> {
             let style = self.style.as_ref().unwrap();
             state.set_drag_and_drop(source, hover, ui.ctx(), style);
             let tab_dst = self.show_drag_drop_overlay(ui, &mut state, tab_viewer);
-            if ui.input(|i| i.pointer.primary_released()) {
-                if let Some(destination) = tab_dst {
+            if ui.input(|i| i.pointer.primary_released())
+                && let Some(destination) = tab_dst {
                     let source = {
                         match state.dnd.as_ref().unwrap().drag.src {
                             TreeComponent::Tab(src) => src,
@@ -57,7 +57,6 @@ impl<Tab> DockArea<'_, Tab> {
                     };
                     self.dock_state.move_tab(source, destination);
                 }
-            }
         }
 
         if ui.input(|i| i.pointer.primary_released()) {
@@ -167,12 +166,11 @@ impl<Tab> DockArea<'_, Tab> {
         hold_time: f32,
         ctx: &Context,
     ) -> Option<SurfaceIndex> {
-        if let Some(dnd_state) = &state.dnd {
-            if dnd_state.is_locked(self.style.as_ref().unwrap(), ctx) {
+        if let Some(dnd_state) = &state.dnd
+            && dnd_state.is_locked(self.style.as_ref().unwrap(), ctx) {
                 state.window_fade =
                     Some((ctx.input(|i| i.time), dnd_state.hover.dst.surface_address()));
             }
-        }
 
         state.window_fade.and_then(|(time, surface)| {
             ctx.request_repaint();
@@ -344,8 +342,8 @@ impl<Tab> DockArea<'_, Tab> {
         let left_collapsed = self.dock_state[path.left_node()].is_collapsed();
         let right_collapsed = self.dock_state[path.right_node()].is_collapsed();
 
-        if left_collapsed || right_collapsed {
-            if let Node::Vertical(split) = &mut self.dock_state[path.surface][path.node] {
+        if (left_collapsed || right_collapsed)
+            && let Node::Vertical(split) = &mut self.dock_state[path.surface][path.node] {
                 let rect = split.rect();
                 debug_assert!(!rect.any_nan() && rect.is_finite());
                 let rect = expand_to_pixel(rect, pixels_per_point);
@@ -397,7 +395,6 @@ impl<Tab> DockArea<'_, Tab> {
                 }
                 return;
             }
-        }
 
         duplicate! {
             [

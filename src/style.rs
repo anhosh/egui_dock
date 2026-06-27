@@ -27,9 +27,9 @@ pub enum TabAddAlign {
 /// #     fn title(&mut self, tab: &mut Self::Tab) -> WidgetText { WidgetText::default() }
 /// #     fn ui(&mut self, ui: &mut Ui, tab: &mut Self::Tab) {}
 /// # }
-/// # egui::__run_test_ctx(|ctx| {
+/// # egui::__run_test_ui(|ui| {
 /// # #[allow(deprecated)]
-/// # egui::CentralPanel::default().show(ctx, |ui| {
+/// # egui::CentralPanel::default().show(ui, |ui| {
 /// # let mut dock_state = DockState::new(vec![]);
 /// // Inherit the look and feel from egui.
 /// let mut style = Style::from_egui(ui.style());

@@ -224,7 +224,7 @@ impl<Tab> Tree<Tab> {
 
     /// Returns an [`Iterator`] of [`NodeIndex`] ordered in a breadth first manner.
     #[inline(always)]
-    pub(crate) fn breadth_first_index_iter(&self) -> impl Iterator<Item = NodeIndex> {
+    pub(crate) fn breadth_first_index_iter(&self) -> impl Iterator<Item = NodeIndex> + use<Tab> {
         (0..self.nodes.len()).map(NodeIndex)
     }
 

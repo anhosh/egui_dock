@@ -65,7 +65,7 @@ impl Default for MyApp {
 
 impl eframe::App for MyApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        egui::Panel::left("documents").show_inside(ui, |ui| {
+        egui::Panel::left("documents").show(ui, |ui| {
             for title in self.buffers.buffers.keys() {
                 let tab_location = self.tree.find_tab(title);
                 let is_open = tab_location.is_some();

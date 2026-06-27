@@ -229,11 +229,10 @@ impl DragDropState {
                         pointer,
                         style,
                         Some(split),
-                    ) {
-                        if let TreeComponent::Node(path) = self.hover.dst {
+                    )
+                        && let TreeComponent::Node(path) = self.hover.dst {
                             destination = Some(TabDestination::Node(path, TabInsert::Split(split)))
                         }
-                    }
                 }
             }
         }
