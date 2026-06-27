@@ -1,7 +1,6 @@
 use duplicate::duplicate;
 use egui::{
-    CentralPanel, Color32, Context, CornerRadius, CursorIcon, EventFilter, Frame, Key, Pos2, Rect,
-    Sense, StrokeKind, Ui, Vec2,
+    Context, CornerRadius, CursorIcon, EventFilter, Key, Pos2, Rect, Sense, StrokeKind, Ui, Vec2,
 };
 use paste::paste;
 
@@ -20,33 +19,6 @@ mod main_surface;
 mod window_surface;
 
 impl<Tab> DockArea<'_, Tab> {
-    /// Show the `DockArea` at the top level.
-    ///
-    /// Deprecated: use [`show_inside`](Self::show_inside) instead.
-    /// With eframe 0.34+, implement `App::ui` and call `show_inside` directly:
-    ///
-    /// ```ignore
-    /// fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-    ///     DockArea::new(&mut self.tree)
-    ///         .style(Style::from_egui(ui.style().as_ref()))
-    ///         .show_inside(ui, &mut tab_viewer);
-    /// }
-    /// ```
-    #[inline]
-    #[deprecated = "Use show_inside() instead — with eframe 0.34+, implement App::ui which gives &mut Ui directly"]
-    #[allow(deprecated)]
-    pub fn show(self, ctx: &Context, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
-        CentralPanel::default()
-            .frame(
-                Frame::central_panel(&ctx.global_style())
-                    .inner_margin(0.)
-                    .fill(Color32::TRANSPARENT),
-            )
-            .show(ctx, |ui| {
-                self.show_inside(ui, tab_viewer);
-            });
-    }
-
     /// Shows the docking hierarchy inside a [`Ui`].
     ///
     /// See also [`show`](Self::show).

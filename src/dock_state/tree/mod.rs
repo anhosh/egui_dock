@@ -22,12 +22,12 @@ pub mod node_index;
 
 use std::{
     cmp::max,
+    collections::HashSet,
     fmt,
     ops::{Index, IndexMut},
     slice::{Iter, IterMut},
 };
 
-use egui::ahash::HashSet;
 use egui::Rect;
 pub use node::LeafNode;
 pub use node::Node;
