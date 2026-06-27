@@ -128,10 +128,8 @@ impl WindowState {
             window_constructor = window_constructor.fixed_size(size);
         }
         // Reset the height of the window if it is now expanded
-        if new {
-            if let Some(height) = self.expanded_height() {
-                window_constructor = window_constructor.max_height(height).min_height(height);
-            }
+        if new && let Some(height) = self.expanded_height() {
+            window_constructor = window_constructor.max_height(height).min_height(height);
         }
         self.new = false;
         window_constructor

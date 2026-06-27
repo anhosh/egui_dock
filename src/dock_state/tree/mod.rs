@@ -22,12 +22,12 @@ pub mod node_index;
 
 use std::{
     cmp::max,
+    collections::HashSet,
     fmt,
     ops::{Index, IndexMut},
     slice::{Iter, IterMut},
 };
 
-use egui::ahash::HashSet;
 use egui::Rect;
 pub use node::LeafNode;
 pub use node::Node;
@@ -224,7 +224,7 @@ impl<Tab> Tree<Tab> {
 
     /// Returns an [`Iterator`] of [`NodeIndex`] ordered in a breadth first manner.
     #[inline(always)]
-    pub(crate) fn breadth_first_index_iter(&self) -> impl Iterator<Item = NodeIndex> {
+    pub(crate) fn breadth_first_index_iter(&self) -> impl Iterator<Item = NodeIndex> + use<Tab> {
         (0..self.nodes.len()).map(NodeIndex)
     }
 

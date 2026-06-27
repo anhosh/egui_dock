@@ -1,8 +1,17 @@
 # egui_dock changelog
 
+
+## egui_dock 0.20.0 - 2026/06/27
+
+### Breaking changes
+
+- Upgraded to egui 0.35. ([#326](https://github.com/anhosh/egui_dock/pull/326))
+
 ## egui_dock 0.19.1 - 2026/03/31
 
-- Corrected outdated documentation.
+### Fixed
+
+- Corrected outdated documentation. ([#326](https://github.com/anhosh/egui_dock/pull/326))
 
 ## egui_dock 0.19.0 - 2026/03/29
 
@@ -40,8 +49,8 @@
 
 ### Added
 
-- `NodePath` and `TabPath` structs, useful for more consistent and terse indexing of nodes and
-  tabs. ([#312](https://github.com/anhosh/egui_dock/pull/312))
+- `NodePath` and `TabPath` structs, useful for more consistent and terse indexing of nodes and tabs.
+  ([#312](https://github.com/anhosh/egui_dock/pull/312))
 - Indexing `LeafNode` with `TabIndex`. ([#311](https://github.com/anhosh/egui_dock/pull/311/))
 - Indexing `DockState` using `NodePath`. ([#312](https://github.com/anhosh/egui_dock/pull/312))
 - New methods ([#312](https://github.com/anhosh/egui_dock/pull/312)):
@@ -55,7 +64,8 @@
 ### Fixed
 
 - No more panics when a window is shrunk to zero available space. ([#309](https://github.com/anhosh/egui_dock/pull/309))
-- No more panics while trying move a tab to the end of the list within the same leaf. ([#308](https://github.com/anhosh/egui_dock/pull/308))
+- No more panics while trying move a tab to the end of the list within the same leaf.
+  ([#308](https://github.com/anhosh/egui_dock/pull/308))
 
 ### Deprecated
 
@@ -119,8 +129,8 @@
 
 ### Fixed
 
-- `DockState::retain_tabs` no longer deletes the main surface if it ends up
-  empty ([#277](https://github.com/Adanos020/egui_dock/pull/277)).
+- `DockState::retain_tabs` no longer deletes the main surface if it ends up empty
+  ([#277](https://github.com/Adanos020/egui_dock/pull/277)).
 - From [#275](https://github.com/Adanos020/egui_dock/pull/275):
     - `{DockState,Tree}::remove_leaf` now removes unused empty node`s at the back of the tree.
     - `{DockState,Tree}::retain_tabs` no longer deletes leaf nodes it shouldn't delete.
@@ -242,15 +252,15 @@
 
 ### Fixed
 
-- Tab body's background is now rounded with the value
-  of `TabBodyStyle::rounding`. ([#232](https://github.com/Adanos020/egui_dock/pull/232))
+- Tab body's background is now rounded with the value of `TabBodyStyle::rounding`.
+  ([#232](https://github.com/Adanos020/egui_dock/pull/232))
 
 ## 0.11.3 - 2024-03-07
 
 ### Fixed
 
-- `filter_map_tabs` sometimes deleting nodes when it
-  shouldn't. ([#230](https://github.com/Adanos020/egui_dock/pull/230))
+- `filter_map_tabs` sometimes deleting nodes when it shouldn't.
+  ([#230](https://github.com/Adanos020/egui_dock/pull/230))
 
 ## 0.11.2 - 2024-02-16
 
@@ -266,8 +276,8 @@ From [#225](https://github.com/Adanos020/egui_dock/pull/225):
 
 ### Fixed
 
-- Bug where tabs couldn't be re-docked onto the main surface if it's
-  empty. ([#222](https://github.com/Adanos020/egui_dock/pull/222))
+- Bug where tabs couldn't be re-docked onto the main surface if it's empty.
+  ([#222](https://github.com/Adanos020/egui_dock/pull/222))
 
 ## 0.11.0 - 2024-02-06
 
@@ -289,19 +299,19 @@ From [#225](https://github.com/Adanos020/egui_dock/pull/225):
     - Separators are now focusable with the keyboard and movable using the arrow keys while control or shift is held.
     - `TabStyle::active_with_kb_focus`, `TabStyle::inactive_with_kb_focus` and `TabStyle::focused_with_kb_focus` for
       style of tabs that are focused with the keyboard.
-- Missing translation for the tooltip showing when you hover on a grayed out window close
-  button. ([#216](https://github.com/Adanos020/egui_dock/pull/216))
+- Missing translation for the tooltip showing when you hover on a grayed out window close button.
+  ([#216](https://github.com/Adanos020/egui_dock/pull/216))
 
 ### Fixed
 
-- Widgets inside tabs are now focusable with the tab key on the
-  keyboard. ([#211](https://github.com/Adanos020/egui_dock/pull/211))
+- Widgets inside tabs are now focusable with the tab key on the keyboard.
+  ([#211](https://github.com/Adanos020/egui_dock/pull/211))
 
 ### Breaking changes
 
 - Upgraded to egui 0.25
-- Replaced `Default` implementations for `{TabContextMenu,Window,}Translations` with associated functions
-  called `english`. ([#216](https://github.com/Adanos020/egui_dock/pull/216))
+- Replaced `Default` implementations for `{TabContextMenu,Window,}Translations` with associated functions called
+  `english`. ([#216](https://github.com/Adanos020/egui_dock/pull/216))
 
 ## 0.9.1 - 2023-12-10
 
@@ -337,15 +347,15 @@ From [#225](https://github.com/Adanos020/egui_dock/pull/225):
 ### Fixed
 
 - Deserializing `WindowState` no longer crashes when `screen_rect` contains any `f32::INFINITY` values. Make sure to fix
-  your last serialized app state by
-  setting `screen_rect: null`. ([#198](https://github.com/Adanos020/egui_dock/pull/198))
+  your last serialized app state by setting `screen_rect: null`.
+  ([#198](https://github.com/Adanos020/egui_dock/pull/198))
 
 ## 0.8.1 - 2023-10-04
 
 ### Fixed
 
-- The tab bar no longer remains empty after it ends up having 0 width in any
-  way. ([#191](https://github.com/Adanos020/egui_dock/pull/191))
+- The tab bar no longer remains empty after it ends up having 0 width in any way.
+  ([#191](https://github.com/Adanos020/egui_dock/pull/191))
 
 ## 0.8.0 - 2023-09-28
 
@@ -362,8 +372,8 @@ From [#225](https://github.com/Adanos020/egui_dock/pull/225):
 
 ### Fixed
 
-- The "Eject" button is not available on tabs which are disallowed in
-  windows. ([#188](https://github.com/Adanos020/egui_dock/pull/188))
+- The "Eject" button is not available on tabs which are disallowed in windows.
+  ([#188](https://github.com/Adanos020/egui_dock/pull/188))
 
 ## 0.7.2 - 2023-09-20
 
@@ -379,27 +389,27 @@ From [#225](https://github.com/Adanos020/egui_dock/pull/225):
 
 ## 0.7.0 - 2023-09-18
 
-This is the biggest update so far, introducing the long awaited undocking feature: tabs can now be dragged out into
-new egui windows. Massive thanks to [Vickerinox](https://github.com/Vickerinox) for implementing it!
+This is the biggest update so far, introducing the long awaited undocking feature: tabs can now be dragged out into new
+egui windows. Massive thanks to [Vickerinox](https://github.com/Vickerinox) for implementing it!
 
 This update also includes an overhaul of the documentation, aiming to not only be more readable and correct, but also
 provide a guide of how to use the library.
 
 ### Changed
 
-- Adjusted the styling of tabs to closer follow the egui default
-  styling. ([#139](https://github.com/Adanos020/egui_dock/pull/139))
-- Double-clicking on a separator resets the size of both adjacent
-  nodes. ([#146](https://github.com/Adanos020/egui_dock/pull/146))
-- Tabs can now only be dragged with the primary pointer button (e.g. left mouse
-  button). ([#177](https://github.com/Adanos020/egui_dock/pull/177))
+- Adjusted the styling of tabs to closer follow the egui default styling.
+  ([#139](https://github.com/Adanos020/egui_dock/pull/139))
+- Double-clicking on a separator resets the size of both adjacent nodes.
+  ([#146](https://github.com/Adanos020/egui_dock/pull/146))
+- Tabs can now only be dragged with the primary pointer button (e.g. left mouse button).
+  ([#177](https://github.com/Adanos020/egui_dock/pull/177))
 
 ### Fixed
 
 - Correctly draw a border around a dock area using the `Style::border`
   property. ([#139](https://github.com/Adanos020/egui_dock/pull/139))
-- Non-closable tabs now cannot be closed by clicking with the middle mouse
-  button. ([9cdef8c](https://github.com/Adanos020/egui_dock/pull/149/commits/9cdef8cb77e73ef7a065d1313f7fb8feae0253b4))
+- Non-closable tabs now cannot be closed by clicking with the middle mouse button.
+  ([9cdef8c](https://github.com/Adanos020/egui_dock/pull/149/commits/9cdef8cb77e73ef7a065d1313f7fb8feae0253b4))
 - Dragging tabs around now works on touchscreens. ([#180](https://github.com/Adanos020/egui_dock/pull/180))
 
 ### Added
@@ -414,8 +424,8 @@ provide a guide of how to use the library.
       margin.
     - `TabStyle::minimum_width` to set the minimum width of the tab.
     - `TabInteractionStyle` to style the active/inactive/focused/hovered states of a tab.
-- `AllowedSplits` enum which lets you choose in which directions a `DockArea` can be
-  split. ([#145](https://github.com/Adanos020/egui_dock/pull/145))
+- `AllowedSplits` enum which lets you choose in which directions a `DockArea` can be split.
+  ([#145](https://github.com/Adanos020/egui_dock/pull/145))
 - From [#149](https://github.com/Adanos020/egui_dock/pull/149):
     - `DockState<Tab>` containing the entire state of the tab hierarchies stored in a collection of `Surfaces`.
     - `Surface<Tab>` enum which represents an area (e.g. a window) with its own `Tree<Tab>`.
@@ -437,13 +447,12 @@ provide a guide of how to use the library.
     - `DockArea::show_window_close_buttons` setting determining if windows should have a close button or not.
     - `DockArea::show_window_collapse_buttons` setting determining if windows should have a collapse button or not.
     - `TabViewer::allowed_in_windows` specifying if a given tab can be shown in a window.
-- `TabViewer::closable` lets individual tabs be closable or
-  not. ([#150](https://github.com/Adanos020/egui_dock/pull/150))
-- `TabViewer::scroll_bars` specifying if horizontal and vertical scrolling is enabled for given tab –
-  replaces `DockArea::scroll_area_in_tabs` (see breaking
-  changes). ([#160](https://github.com/Adanos020/egui_dock/pull/160))
-- `Translations` specifying what text will be displayed in some parts of the `DockingArea`, e.g. the tab context menus (
-  defined in `TabContextMenuTranslations`). ([#178](https://github.com/Adanos020/egui_dock/pull/178))
+- `TabViewer::closable` lets individual tabs be closable or not.
+  ([#150](https://github.com/Adanos020/egui_dock/pull/150))
+- `TabViewer::scroll_bars` specifying if horizontal and vertical scrolling is enabled for given tab – replaces
+  `DockArea::scroll_area_in_tabs` (see breaking changes). ([#160](https://github.com/Adanos020/egui_dock/pull/160))
+- `Translations` specifying what text will be displayed in some parts of the `DockingArea`, e.g. the tab context menus
+  (defined in `TabContextMenuTranslations`). ([#178](https://github.com/Adanos020/egui_dock/pull/178))
 
 ### Breaking changes
 
@@ -493,19 +502,19 @@ provide a guide of how to use the library.
 
 ### Added
 
-- `TabViewer::tab_style_override` that lets you define a custom `TabsStyle` for an individual
-  tab ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
-- `ButtonsStyle::add_tab_border_color` for the `+` button's left
-  border ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
-- `TabBarStyle::rounding` for rounding of the tab bar, independent from tab
-  rounding ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
-- Separate `from_egui` methods for `ButtonsStyle`, `SeparatorStyle`, `TabBarStyle`,
-  and `TabStyle` ([a660497](https://github.com/Adanos020/egui_dock/commit/a660497b21651dd9920665bf50d8fc9e75d0e1e0))
+- `TabViewer::tab_style_override` that lets you define a custom `TabsStyle` for an individual tab
+  ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
+- `ButtonsStyle::add_tab_border_color` for the `+` button's left border
+  ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
+- `TabBarStyle::rounding` for rounding of the tab bar, independent from tab rounding
+  ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
+- Separate `from_egui` methods for `ButtonsStyle`, `SeparatorStyle`, `TabBarStyle`, and `TabStyle`
+  ([a660497](https://github.com/Adanos020/egui_dock/commit/a660497b21651dd9920665bf50d8fc9e75d0e1e0))
 
 ### Breaking changes
 
-- Upgraded `egui` to version
-  0.22 ([c2e8fee](https://github.com/Adanos020/egui_dock/commit/c2e8feeb7713e2b2d2f0fa1b13a46732f9c6df62))
+- Upgraded `egui` to version 0.22
+  ([c2e8fee](https://github.com/Adanos020/egui_dock/commit/c2e8feeb7713e2b2d2f0fa1b13a46732f9c6df62))
 - Renamed `TabsStyle`
   to `TabStyle` ([89f3248](https://github.com/Adanos020/egui_dock/commit/89f32487a9e1fe8dee92f1fbdc296a2d460c0909))
 -
@@ -513,15 +522,17 @@ provide a guide of how to use the library.
 Removed
 `StyleBuilder` ([9a9b275](https://github.com/Adanos020/egui_dock/commit/9a9b2750cd290bebcc4088761249e02102cb0ce7))
 
-- Removed `TabViewer::inner_margin_override` – no deprecation as it's in direct conflict
-  with
-  `TabViewer::tab_style_override` ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
+- Removed `TabViewer::inner_margin_override` – no deprecation as it's in direct conflict with
+  `TabViewer::tab_style_override`
+  ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
 - Moved `Style::default_inner_margin`
   to
-  `TabsStyle::inner_margin` ([78ecf3a](https://github.com/Adanos020/egui_dock/commit/78ecf3a175ffb960724f328274682dfded800e0f))
+  `TabsStyle::inner_margin`
+  ([78ecf3a](https://github.com/Adanos020/egui_dock/commit/78ecf3a175ffb960724f328274682dfded800e0f))
 - Moved `TabStyle::hline_color`
   to
-  `TabBarStyle::hline_color` ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
+  `TabBarStyle::hline_color`
+  ([99333b0](https://github.com/Adanos020/egui_dock/commit/99333b093d307181c288b3e134379cfe47647a7c))
 
 ## 0.5.2 - 2023-06-04
 
@@ -537,21 +548,21 @@ Removed
 
 ### Added
 
-- `SeparatorStyle::extra_interact_width` option that adds "logical" width to separators so that they are easier to
-  grab ([#128](https://github.com/Adanos020/egui_dock/pull/128))
+- `SeparatorStyle::extra_interact_width` option that adds "logical" width to separators so that they are easier to grab
+  ([#128](https://github.com/Adanos020/egui_dock/pull/128))
 
 ## 0.5.0 - 2023-04-22
 
 ### Fixed
 
 - Ensure `Tab` have a stable `egui::Id` when moved ([#121](https://github.com/Adanos020/egui_dock/pull/121))
-- Don't display the "grab" cursor icon on tabs when hovered and the `draggable_tabs` flag is
-  unset ([#123](https://github.com/Adanos020/egui_dock/pull/123))
+- Don't display the "grab" cursor icon on tabs when hovered and the `draggable_tabs` flag is unset
+  ([#123](https://github.com/Adanos020/egui_dock/pull/123))
 
 ### Added
 
-- `Tree::move_tab` method that allows moving a tab from one node to the
-  other ([#115](https://github.com/Adanos020/egui_dock/pull/107))
+- `Tree::move_tab` method that allows moving a tab from one node to the other
+  ([#115](https://github.com/Adanos020/egui_dock/pull/107))
 - `Tree::remove_leaf` method that deletes a selected leaf node ([#115](https://github.com/Adanos020/egui_dock/pull/107))
 - New methods in `DockArea` ([#115](https://github.com/Adanos020/egui_dock/pull/115))
     - `show_add_popup`
@@ -562,13 +573,13 @@ Removed
     - `scroll_area_in_tabs`
     - `show_tab_name_on_hover`
 - Make tabs scrollable when they overflow ([#116](https://github.com/Adanos020/egui_dock/pull/116))
-- `TabViewer::id` method that allows specifying a custom id for each
-  tab ([#121](https://github.com/Adanos020/egui_dock/pull/121))
+- `TabViewer::id` method that allows specifying a custom id for each tab
+  ([#121](https://github.com/Adanos020/egui_dock/pull/121))
 
 ### Breaking changes
 
-- Removed `remove_empty_leaf` which was used for internal usage and should not be needed by
-  users ([#115](https://github.com/Adanos020/egui_dock/pull/107))
+- Removed `remove_empty_leaf` which was used for internal usage and should not be needed by users
+  ([#115](https://github.com/Adanos020/egui_dock/pull/107))
 - Removed `show_close_buttons` from `StyleBuilder` ([#115](https://github.com/Adanos020/egui_dock/pull/115))
 - Moved the following fields from `Style` to `DockArea` ([#115](https://github.com/Adanos020/egui_dock/pull/115))
     - `show_add_popup`
@@ -578,8 +589,8 @@ Removed
     - `show_context_menu` (renamed to `tab_context_menus`)
     - `tab_include_scrollarea` (renamed to `scroll_area_in_tabs`)
     - `tab_hover_name` (renamed to `show_tab_name_on_hover`)
-- `Style` is now split up into smaller structs for maintainability and consistence
-  with `egui::Style` ([#115](https://github.com/Adanos020/egui_dock/pull/115))
+- `Style` is now split up into smaller structs for maintainability and consistence with `egui::Style`
+  ([#115](https://github.com/Adanos020/egui_dock/pull/115))
 
 | Old names and locations                         | New names and locations                          |
 |-------------------------------------------------|--------------------------------------------------|
@@ -623,10 +634,10 @@ Removed
 
 ### Fixed
 
-- Light mode now works in
-  tabs ([528b892](https://github.com/Adanos020/egui_dock/commit/528b89245928d055dabb00cd9001c22d275f789b))
-- `DockArea::show_inside` no longer obscures previously added
-  elements ([#102](https://github.com/Adanos020/egui_dock/pull/102))
+- Light mode now works in tabs
+  ([528b892](https://github.com/Adanos020/egui_dock/commit/528b89245928d055dabb00cd9001c22d275f789b))
+- `DockArea::show_inside` no longer obscures previously added elements
+  ([#102](https://github.com/Adanos020/egui_dock/pull/102))
 - Splitter drag now behaves like egui `DragValue` ([#103](https://github.com/Adanos020/egui_dock/pull/103))
 
 ## 0.4.0 - 2023-02-09
@@ -648,8 +659,8 @@ Removed
 
 ### Added
 
-- `Style` now includes an option to change the tab's
-  height - `tab_bar_height`. ([#62](https://github.com/Adanos020/egui_dock/pull/62))
+- `Style` now includes an option to change the tab's height - `tab_bar_height`.
+  ([#62](https://github.com/Adanos020/egui_dock/pull/62))
 - Implemented the `std::fmt::Debug` trait on all exported types. ([#84](https://github.com/Adanos020/egui_dock/pull/84))
 
 ### Fixed
@@ -660,10 +671,10 @@ Removed
 
 ### Added
 
-- `TabViewer::clear_background` method that returns if current tab's background should be
-  cleared. ([#35](https://github.com/Adanos020/egui_dock/pull/35))
-- You can now close tabs with middle mouse button if `Style::show_close_buttons` is
-  true. ([#34](https://github.com/Adanos020/egui_dock/pull/34))
+- `TabViewer::clear_background` method that returns if current tab's background should be cleared.
+  ([#35](https://github.com/Adanos020/egui_dock/pull/35))
+- You can now close tabs with middle mouse button if `Style::show_close_buttons` is true.
+  ([#34](https://github.com/Adanos020/egui_dock/pull/34))
 - Option to disable dragging tabs.
 - New option `expand_tabs` in `Style` and `StyleBuiler` causes tab titles to expand to match the width of their tab
   bars.
@@ -681,8 +692,7 @@ Removed
 
 - Renamed `TabViewer::inner_margin`
   to `TabViewer::inner_margin_override`. ([#67](https://github.com/Adanos020/egui_dock/pull/67))
-- `Style::with_separator_color` has been split
-  into `separator_color_idle`, `separator_color_hovered`,
+- `Style::with_separator_color` has been split into `separator_color_idle`, `separator_color_hovered`,
   `separator_color_dragged` ([#68](https://github.com/Adanos020/egui_dock/pull/68))
 - Updated `egui` to 0.20.0 [#77](https://github.com/Adanos020/egui_dock/pull/77)
 
@@ -719,8 +729,8 @@ Removed
 - The dock will keep track of the currently focused leaf.
 - Using `Tree::push_to_focused_leaf` will push the given tab to the currently active leaf.
 - `StyleBuilder` for the `Style`.
-- New fields in `Style:` `separator_color`, `border_color`, and `border_width` (last two for the cases when
-  used `Margin`).
+- New fields in `Style:` `separator_color`, `border_color`, and `border_width` (last two for the cases when used
+  `Margin`).
 - `TabBuilder` for the `BuiltTab`.
 - Support for all implementations of `Into<WidgetText>` in tab titles.
 - Style editor in the `hello` example.

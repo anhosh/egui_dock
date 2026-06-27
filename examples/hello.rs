@@ -4,12 +4,13 @@ use std::collections::HashSet;
 
 use eframe::NativeOptions;
 use egui::{
-    color_picker::{color_edit_button_srgba, Alpha},
-    vec2, ComboBox, CornerRadius, Panel, Slider, Ui, ViewportBuilder, WidgetText,
+    ComboBox, CornerRadius, Panel, Slider, Ui, ViewportBuilder, WidgetText,
+    color_picker::{Alpha, color_edit_button_srgba},
+    vec2,
 };
 use egui_dock::{
-    tab_viewer::OnCloseResponse, AllowedSplits, DockArea, DockState, NodeIndex, NodePath,
-    OverlayType, Style, SurfaceIndex, TabInteractionStyle, TabViewer,
+    AllowedSplits, DockArea, DockState, NodeIndex, NodePath, OverlayType, Style, SurfaceIndex,
+    TabInteractionStyle, TabViewer, tab_viewer::OnCloseResponse,
 };
 
 /// Adds a widget with a label next to it, can be given an extra parameter in order to show a hover text
@@ -49,7 +50,9 @@ macro_rules! unit_slider {
 }
 
 fn main() -> eframe::Result<()> {
-    std::env::set_var("RUST_BACKTRACE", "1");
+    unsafe {
+        std::env::set_var("RUST_BACKTRACE", "1");
+    }
     let options = NativeOptions {
         viewport: ViewportBuilder::default().with_inner_size(vec2(1024.0, 1024.0)),
         ..Default::default()
@@ -571,7 +574,7 @@ impl Default for MyApp {
 
 impl eframe::App for MyApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        Panel::top("egui_dock::MenuBar").show_inside(ui, |ui| {
+        Panel::top("egui_dock::MenuBar").show(ui, |ui| {
             egui::MenuBar::new().ui(ui, |ui| {
                 ui.menu_button("View", |ui| {
                     // allow certain tabs to be toggled

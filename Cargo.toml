@@ -2,8 +2,8 @@
 name = "egui_dock"
 description = "Docking system for egui - an immediate-mode GUI library for Rust"
 authors = ["lain-dono", "Adam Gąsior (Adanos020)"]
-version = "0.19.1"
-edition = "2021"
+version = "0.20.0"
+edition = "2024"
 rust-version = "1.92"
 license = "MIT"
 readme = "README.md"
@@ -19,7 +19,7 @@ default = []
 serde = ["dep:serde", "egui/serde"]
 
 [dependencies]
-egui = { version = "0.34", default-features = false }
+egui = { version = "0.35", default-features = false }
 serde = { version = "1", optional = true, features = ["derive"] }
 
 duplicate = "2.0"
@@ -27,7 +27,7 @@ paste = "1.0"
 thiserror = "2.0.18"
 
 [dev-dependencies]
-eframe = { version = "0.34", default-features = false, features = [
+eframe = { version = "0.35", default-features = false, features = [
     "default",
     "default_fonts",
     "glow",

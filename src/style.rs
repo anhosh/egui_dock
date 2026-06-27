@@ -1,4 +1,4 @@
-use egui::{ecolor::*, CornerRadius, Margin, Stroke};
+use egui::{CornerRadius, Margin, Stroke, ecolor::*};
 
 /// Left or right alignment for tab add button.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -27,9 +27,9 @@ pub enum TabAddAlign {
 /// #     fn title(&mut self, tab: &mut Self::Tab) -> WidgetText { WidgetText::default() }
 /// #     fn ui(&mut self, ui: &mut Ui, tab: &mut Self::Tab) {}
 /// # }
-/// # egui::__run_test_ctx(|ctx| {
+/// # egui::__run_test_ui(|ui| {
 /// # #[allow(deprecated)]
-/// # egui::CentralPanel::default().show(ctx, |ui| {
+/// # egui::CentralPanel::default().show(ui, |ui| {
 /// # let mut dock_state = DockState::new(vec![]);
 /// // Inherit the look and feel from egui.
 /// let mut style = Style::from_egui(ui.style());
@@ -492,7 +492,7 @@ impl Default for OverlayStyle {
 
             hovered_leaf_highlight: Default::default(),
             button_color: Color32::from_gray(140),
-            button_border_stroke: Stroke::new(1.0, Color32::from_gray(60)),
+            button_border_stroke: Stroke::new(1.0_f32, Color32::from_gray(60)),
             overlay_type: OverlayType::Widgets,
             feel: Default::default(),
         }

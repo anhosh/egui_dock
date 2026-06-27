@@ -1,8 +1,9 @@
 use std::ops::BitOrAssign;
 
 use egui::{
-    emath::{inverse_lerp, GuiRounding},
-    vec2, Context, Id, LayerId, NumExt, Order, Painter, Pos2, Rect, Stroke, StrokeKind, Ui, Vec2,
+    Context, Id, LayerId, NumExt, Order, Painter, Pos2, Rect, Stroke, StrokeKind, Ui, Vec2,
+    emath::{GuiRounding, inverse_lerp},
+    vec2,
 };
 
 use crate::{
@@ -95,7 +96,7 @@ fn button_ui(
     split: Option<Split>,
 ) -> bool {
     let visuals = &style.overlay;
-    let button_stroke = Stroke::new(1.0, visuals.button_color);
+    let button_stroke = Stroke::new(1.0_f32, visuals.button_color);
     let painter = make_overlay_painter(ui);
     painter.rect_stroke(rect, 0.0, visuals.button_border_stroke, StrokeKind::Inside);
     let rect = rect.shrink(rect.width() * 0.1);
@@ -229,10 +230,9 @@ impl DragDropState {
                         pointer,
                         style,
                         Some(split),
-                    ) {
-                        if let TreeComponent::Node(path) = self.hover.dst {
-                            destination = Some(TabDestination::Node(path, TabInsert::Split(split)))
-                        }
+                    ) && let TreeComponent::Node(path) = self.hover.dst
+                    {
+                        destination = Some(TabDestination::Node(path, TabInsert::Split(split)))
                     }
                 }
             }
