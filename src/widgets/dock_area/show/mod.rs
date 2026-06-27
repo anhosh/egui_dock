@@ -20,8 +20,6 @@ mod window_surface;
 
 impl<Tab> DockArea<'_, Tab> {
     /// Shows the docking hierarchy inside a [`Ui`].
-    ///
-    /// See also [`show`](Self::show).
     pub fn show_inside(mut self, ui: &mut Ui, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
         self.style
             .get_or_insert(Style::from_egui(ui.style().as_ref()));

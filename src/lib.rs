@@ -119,8 +119,7 @@
 //! non-empty surfaces: `Main` and `Window`.
 //!
 //! There can only be one `Main` surface. It's the one surface that is rendered inside the
-//! [`Ui`](egui::Ui) you've passed to [`DockArea::show_inside`], or inside the
-//! [`egui::CentralPanel`] created by [`DockArea::show`].
+//! [`Ui`](egui::Ui) you've passed to [`DockArea::show_inside`].
 //!
 //! On the other hand, there can be multiple `Window` surfaces. Those represent surfaces that were
 //! created by undocking tabs from the `Main` surface, and each of them is rendered inside

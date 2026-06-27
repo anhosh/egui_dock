@@ -167,7 +167,7 @@ impl<'tree, Tab> DockArea<'tree, Tab> {
     }
 
     /// The bounds for any windows inside the [`DockArea`]. Defaults to the screen rect.
-    /// By default it's set to [`egui::Context::screen_rect`].
+    /// By default it's set to [`egui::Context::content_rect`].
     #[inline(always)]
     pub fn window_bounds(mut self, bounds: Rect) -> Self {
         self.window_bounds = Some(bounds);
