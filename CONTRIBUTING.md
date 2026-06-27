@@ -1,6 +1,10 @@
-# Contributing
+# Contribution guide
 
 Before contributing to this project, please follow the guide below.
+
+## AI usage
+
+Please refer to the [AI usage policy](AI_POLICY.md).
 
 ## Issues
 
@@ -13,16 +17,17 @@ Bug reports should include how to reproduce said bug, if known.
 1. Fork this repository.
 2. In your fork create a branch for your changes – do **not** submit directly to `main` or `release-0.x`.
 3. Make your changes and open a pull request.
-    - If your changes are not complete but e.g. you want feedback on your idea before fully committing to it, open a draft PR.
+    - If your changes are not complete but e.g. you want feedback on your idea before fully committing to it, open a
+      draft PR.
     - Otherwise, feel free to open a regular PR.
 
 **Important:** Open PRs to the `main` branch only if your changes do not introduce incompatibilities with the latest
 release of `egui_dock`, a.k.a. breaking changes. All breaking changes should be merged into a special `release-0.XYZ`
-branch instead. This is to make it possible to release non-breaking bugfixes without requiring to update to a new incompatible
-release.
+branch instead. This is to make it possible to release non-breaking bugfixes without requiring to update to a new
+incompatible release.
 
-Before your PR is merged, it needs to be approved by one of the maintainers.
-To minimize the review time, make sure all the following requirements are met:
+Before your PR is merged, it needs to be approved by one of the maintainers. To minimize the review time, make sure all
+the following requirements are met:
 
 - Your PR is linked to the related issue – if one doesn't exist, create it first.
 - Code must be formatted with `cargo fmt` (checked by CI).
@@ -38,7 +43,7 @@ To minimize the review time, make sure all the following requirements are met:
     - If you override a field of `Style` in `from_egui`, include it in the documentation of this function.
 - All major features are included in an example app found in `examples/`.
 - The following files and directories are **not** included:
-  - .idea/
-  - .vs/
-  - target/
-  - Cargo.lock
+    - .idea/
+    - .vs/
+    - target/
+    - Cargo.lock

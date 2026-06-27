@@ -9,7 +9,7 @@ Originally created by [@lain-dono](https://github.com/lain-dono), this library p
 
 ## Contributing
 
-Before contributing, please read [the contribution guide](CONTRIBUTING.md).
+Before contributing, please read the [contribution guide](CONTRIBUTING.md) _and_ the [AI usage policy](AI_POLICY.md).
 
 This library is a collaborative project developed with direct involvement of its users.
 
