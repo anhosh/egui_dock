@@ -10,10 +10,10 @@ mod state;
 mod tab_removal;
 
 pub use allowed_splits::AllowedSplits;
-use egui::{emath::*, Id, Modifiers};
+use egui::{Id, Modifiers, emath::*};
 use tab_removal::TabRemoval;
 
-use crate::{dock_state::DockState, NodePath, Style, TabIndex, TabPath};
+use crate::{NodePath, Style, TabIndex, TabPath, dock_state::DockState};
 
 /// Displays a [`DockState`] in `egui`.
 pub struct DockArea<'tree, Tab> {
@@ -167,7 +167,7 @@ impl<'tree, Tab> DockArea<'tree, Tab> {
     }
 
     /// The bounds for any windows inside the [`DockArea`]. Defaults to the screen rect.
-    /// By default it's set to [`egui::Context::screen_rect`].
+    /// By default it's set to [`egui::Context::content_rect`].
     #[inline(always)]
     pub fn window_bounds(mut self, bounds: Rect) -> Self {
         self.window_bounds = Some(bounds);

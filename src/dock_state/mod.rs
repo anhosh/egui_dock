@@ -219,7 +219,7 @@ impl<Tab> DockState<Tab> {
         })
     }
 
-    /// Sets which is the active tab within a specific node on a given surface.
+    /// Sets which is the active tab at a specific `path`.
     ///
     /// # Errors
     ///
@@ -233,9 +233,9 @@ impl<Tab> DockState<Tab> {
         Ok(())
     }
 
-    /// Immutably borrows a node at the given path.
+    /// Immutably borrows a node at the given `path`.
     ///
-    /// This is the same as `&self[path]` but never panics.
+    /// This is the same as `&self[path]` but returns an error instead of panicking.
     pub fn node(&self, path: NodePath) -> Result<&Node<Tab>> {
         self.surfaces
             .get(path.surface.0)
@@ -247,9 +247,9 @@ impl<Tab> DockState<Tab> {
             .ok_or(Error::InvalidNode)
     }
 
-    /// Mutably borrows a node at the given path.
+    /// Mutably borrows a node at the given `path`.
     ///
-    /// This is the same as `&mut self[path]` but never panics.
+    /// This is the same as `&mut self[path]` but returns an error instead of panicking.
     pub fn node_mut(&mut self, path: NodePath) -> Result<&mut Node<Tab>> {
         self.surfaces
             .get_mut(path.surface.0)
@@ -261,23 +261,23 @@ impl<Tab> DockState<Tab> {
             .ok_or(Error::InvalidNode)
     }
 
-    /// Immutably borrows a leaf node at the given path.
+    /// Immutably borrows a leaf node at the given `path`.
     ///
-    /// Returns `Err` if the path is invalid or the node at the path is not a leaf.
+    /// Returns `Err` if the `path` is invalid or the node at the path is not a leaf.
     pub fn leaf(&self, path: NodePath) -> Result<&LeafNode<Tab>> {
         self.node(path)?.get_leaf().ok_or(Error::NonLeafNode)
     }
 
-    /// Mutably borrows a leaf node at the given path.
+    /// Mutably borrows a leaf node at the given `path`.
     ///
-    /// Returns `Err` if the path is invalid or the node at the path is not a leaf.
+    /// Returns `Err` if the `path` is invalid or the node at the `path` is not a leaf.
     pub fn leaf_mut(&mut self, path: NodePath) -> Result<&mut LeafNode<Tab>> {
         self.node_mut(path)?
             .get_leaf_mut()
             .ok_or(Error::NonLeafNode)
     }
 
-    /// Sets the currently focused leaf to `node_index` if the node at `node_index` is a leaf.
+    /// Sets the currently focused leaf to `path` if the node at `path` is a leaf.
     #[inline]
     pub fn set_focused_node_and_surface(&mut self, path: NodePath) {
         if self.leaf(path).is_ok() {
@@ -358,7 +358,7 @@ impl<Tab> DockState<Tab> {
         surface_index
     }
 
-    /// Currently focused leaf.
+    /// Returns the currently focused leaf if there is one.
     #[inline]
     pub fn focused_leaf(&self) -> Option<NodePath> {
         let surface = self.focused_surface?;
@@ -368,7 +368,7 @@ impl<Tab> DockState<Tab> {
         })
     }
 
-    /// Remove a tab at the specified surface, node, and tab index.
+    /// Removes a tab at the specified `path`.
     /// This method will yield the removed tab, or `None` if it doesn't exist.
     pub fn remove_tab(&mut self, path: TabPath) -> Option<Tab> {
         let removed_tab = self[path.surface].remove_tab((path.node, path.tab));
@@ -378,7 +378,7 @@ impl<Tab> DockState<Tab> {
         removed_tab
     }
 
-    /// Remove a leaf at the specified surface, and node index.
+    /// Removes a leaf at the specified `path`.
     pub fn remove_leaf(&mut self, path: NodePath) {
         self[path.surface].remove_leaf(path.node);
         if !path.surface.is_main() && self[path.surface].is_empty() {
@@ -547,14 +547,7 @@ impl<Tab> DockState<Tab> {
                 surface
                     .iter_all_tabs()
                     .map(move |((node_index, tab_index), tab)| {
-                        (
-                            TabPath {
-                                surface: surface_index,
-                                node: node_index,
-                                tab: tab_index,
-                            },
-                            tab,
-                        )
+                        (TabPath::new(surface_index, node_index, tab_index), tab)
                     })
             })
     }
@@ -567,14 +560,7 @@ impl<Tab> DockState<Tab> {
                 surface
                     .iter_all_tabs_mut()
                     .map(move |((node_index, tab_index), tab)| {
-                        (
-                            TabPath {
-                                surface: surface_index,
-                                node: node_index,
-                                tab: tab_index,
-                            },
-                            tab,
-                        )
+                        (TabPath::new(surface_index, node_index, tab_index), tab)
                     })
             })
     }
@@ -606,7 +592,7 @@ impl<Tab> DockState<Tab> {
             .filter_map(|(index, node)| node.get_leaf().map(|leaf| (index, leaf)))
     }
 
-    /// Returns a mutable [`Iterator`] of all [``LeafNode``]s in the dock state.
+    /// Returns a mutable [`Iterator`] of all [`LeafNode`]s in the dock state.
     pub fn iter_leaves_mut(&mut self) -> impl Iterator<Item = (NodePath, &mut LeafNode<Tab>)> {
         self.iter_all_nodes_mut()
             .filter_map(|(index, node)| node.get_leaf_mut().map(|leaf| (index, leaf)))
@@ -704,9 +690,9 @@ impl<Tab> DockState<Tab> {
         });
     }
 
-    /// Find a tab based on the conditions of a functino.
+    /// Find a tab based on the conditions of a function.
     ///
-    /// Returns in which node and where in that node the tab is.
+    /// Returns the full path to that tab if it was found.
     ///
     /// The returned [`NodeIndex`] will always point to a [`Node::Leaf`].
     ///

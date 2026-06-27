@@ -1,18 +1,17 @@
 use duplicate::duplicate;
 use egui::{
-    CentralPanel, Color32, Context, CornerRadius, CursorIcon, EventFilter, Frame, Key, Pos2, Rect,
-    Sense, StrokeKind, Ui, Vec2,
+    Context, CornerRadius, CursorIcon, EventFilter, Key, Pos2, Rect, Sense, StrokeKind, Ui, Vec2,
 };
 use paste::paste;
 
 use super::{drag_and_drop::TreeComponent, state::State, tab_removal::TabRemoval};
+use crate::NodePath;
 use crate::dock_area::tab_removal::ForcedRemoval;
 use crate::tab_viewer::OnCloseResponse;
-use crate::NodePath;
 use crate::{
-    utils::{expand_to_pixel, fade_dock_style, map_to_pixel},
     AllowedSplits, DockArea, Node, NodeIndex, OverlayType, Style, SurfaceIndex, TabDestination,
     TabViewer,
+    utils::{expand_to_pixel, fade_dock_style, map_to_pixel},
 };
 
 mod leaf;
@@ -20,36 +19,7 @@ mod main_surface;
 mod window_surface;
 
 impl<Tab> DockArea<'_, Tab> {
-    /// Show the `DockArea` at the top level.
-    ///
-    /// Deprecated: use [`show_inside`](Self::show_inside) instead.
-    /// With eframe 0.34+, implement `App::ui` and call `show_inside` directly:
-    ///
-    /// ```ignore
-    /// fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-    ///     DockArea::new(&mut self.tree)
-    ///         .style(Style::from_egui(ui.style().as_ref()))
-    ///         .show_inside(ui, &mut tab_viewer);
-    /// }
-    /// ```
-    #[inline]
-    #[deprecated = "Use show_inside() instead — with eframe 0.34+, implement App::ui which gives &mut Ui directly"]
-    #[allow(deprecated)]
-    pub fn show(self, ctx: &Context, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
-        CentralPanel::default()
-            .frame(
-                Frame::central_panel(&ctx.global_style())
-                    .inner_margin(0.)
-                    .fill(Color32::TRANSPARENT),
-            )
-            .show(ctx, |ui| {
-                self.show_inside(ui, tab_viewer);
-            });
-    }
-
     /// Shows the docking hierarchy inside a [`Ui`].
-    ///
-    /// See also [`show`](Self::show).
     pub fn show_inside(mut self, ui: &mut Ui, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
         self.style
             .get_or_insert(Style::from_egui(ui.style().as_ref()));
@@ -73,18 +43,18 @@ impl<Tab> DockArea<'_, Tab> {
             let style = self.style.as_ref().unwrap();
             state.set_drag_and_drop(source, hover, ui.ctx(), style);
             let tab_dst = self.show_drag_drop_overlay(ui, &mut state, tab_viewer);
-            if ui.input(|i| i.pointer.primary_released()) {
-                if let Some(destination) = tab_dst {
-                    let source = {
-                        match state.dnd.as_ref().unwrap().drag.src {
-                            TreeComponent::Tab(src) => src,
-                            _ => todo!(
-                                "collections of tabs, like nodes and surfaces can't be docked (yet)"
-                            ),
-                        }
-                    };
-                    self.dock_state.move_tab(source, destination);
-                }
+            if ui.input(|i| i.pointer.primary_released())
+                && let Some(destination) = tab_dst
+            {
+                let source = {
+                    match state.dnd.as_ref().unwrap().drag.src {
+                        TreeComponent::Tab(src) => src,
+                        _ => todo!(
+                            "collections of tabs, like nodes and surfaces can't be docked (yet)"
+                        ),
+                    }
+                };
+                self.dock_state.move_tab(source, destination);
             }
         }
 
@@ -195,11 +165,11 @@ impl<Tab> DockArea<'_, Tab> {
         hold_time: f32,
         ctx: &Context,
     ) -> Option<SurfaceIndex> {
-        if let Some(dnd_state) = &state.dnd {
-            if dnd_state.is_locked(self.style.as_ref().unwrap(), ctx) {
-                state.window_fade =
-                    Some((ctx.input(|i| i.time), dnd_state.hover.dst.surface_address()));
-            }
+        if let Some(dnd_state) = &state.dnd
+            && dnd_state.is_locked(self.style.as_ref().unwrap(), ctx)
+        {
+            state.window_fade =
+                Some((ctx.input(|i| i.time), dnd_state.hover.dst.surface_address()));
         }
 
         state.window_fade.and_then(|(time, surface)| {
@@ -372,59 +342,57 @@ impl<Tab> DockArea<'_, Tab> {
         let left_collapsed = self.dock_state[path.left_node()].is_collapsed();
         let right_collapsed = self.dock_state[path.right_node()].is_collapsed();
 
-        if left_collapsed || right_collapsed {
-            if let Node::Vertical(split) = &mut self.dock_state[path.surface][path.node] {
-                let rect = split.rect();
-                debug_assert!(!rect.any_nan() && rect.is_finite());
-                let rect = expand_to_pixel(rect, pixels_per_point);
+        if (left_collapsed || right_collapsed)
+            && let Node::Vertical(split) = &mut self.dock_state[path.surface][path.node]
+        {
+            let rect = split.rect();
+            debug_assert!(!rect.any_nan() && rect.is_finite());
+            let rect = expand_to_pixel(rect, pixels_per_point);
 
-                if left_collapsed {
-                    // EITHER only left collapsed OR left and right both collapsed
-                    let border_y =
-                        rect.min.y + (left_collapsed_count as f32) * style.tab_bar.height;
-                    let left_separator_border = map_to_pixel(
-                        border_y - style.separator.width * 0.5,
-                        pixels_per_point,
-                        f32::round,
-                    );
-                    let right_separator_border = map_to_pixel(
-                        border_y + style.separator.width * 0.5,
-                        pixels_per_point,
-                        f32::round,
-                    );
-                    let left = rect
-                        .intersect(Rect::everything_above(left_separator_border))
-                        .intersect(max_rect);
-                    let right = rect
-                        .intersect(Rect::everything_below(right_separator_border))
-                        .intersect(max_rect);
-                    self.dock_state[path.left_node()].set_rect(left);
-                    self.dock_state[path.right_node()].set_rect(right);
-                } else {
-                    // Only right collapsed
-                    let border_y =
-                        rect.max.y - (right_collapsed_count as f32) * style.tab_bar.height;
-                    let left_separator_border = map_to_pixel(
-                        border_y - style.separator.width * 0.5,
-                        pixels_per_point,
-                        f32::round,
-                    );
-                    let right_separator_border = map_to_pixel(
-                        border_y + style.separator.width * 0.5,
-                        pixels_per_point,
-                        f32::round,
-                    );
-                    let left = rect
-                        .intersect(Rect::everything_above(left_separator_border))
-                        .intersect(max_rect);
-                    let right = rect
-                        .intersect(Rect::everything_below(right_separator_border))
-                        .intersect(max_rect);
-                    self.dock_state[path.left_node()].set_rect(left);
-                    self.dock_state[path.right_node()].set_rect(right);
-                }
-                return;
+            if left_collapsed {
+                // EITHER only left collapsed OR left and right both collapsed
+                let border_y = rect.min.y + (left_collapsed_count as f32) * style.tab_bar.height;
+                let left_separator_border = map_to_pixel(
+                    border_y - style.separator.width * 0.5,
+                    pixels_per_point,
+                    f32::round,
+                );
+                let right_separator_border = map_to_pixel(
+                    border_y + style.separator.width * 0.5,
+                    pixels_per_point,
+                    f32::round,
+                );
+                let left = rect
+                    .intersect(Rect::everything_above(left_separator_border))
+                    .intersect(max_rect);
+                let right = rect
+                    .intersect(Rect::everything_below(right_separator_border))
+                    .intersect(max_rect);
+                self.dock_state[path.left_node()].set_rect(left);
+                self.dock_state[path.right_node()].set_rect(right);
+            } else {
+                // Only right collapsed
+                let border_y = rect.max.y - (right_collapsed_count as f32) * style.tab_bar.height;
+                let left_separator_border = map_to_pixel(
+                    border_y - style.separator.width * 0.5,
+                    pixels_per_point,
+                    f32::round,
+                );
+                let right_separator_border = map_to_pixel(
+                    border_y + style.separator.width * 0.5,
+                    pixels_per_point,
+                    f32::round,
+                );
+                let left = rect
+                    .intersect(Rect::everything_above(left_separator_border))
+                    .intersect(max_rect);
+                let right = rect
+                    .intersect(Rect::everything_below(right_separator_border))
+                    .intersect(max_rect);
+                self.dock_state[path.left_node()].set_rect(left);
+                self.dock_state[path.right_node()].set_rect(right);
             }
+            return;
         }
 
         duplicate! {
