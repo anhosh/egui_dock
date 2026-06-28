@@ -2,13 +2,28 @@
 
 Before contributing to this project, please follow the guide below.
 
+## Vouch
+
+egui_dock integrates [vouch](https://github.com/mitchellh/vouch) which means that in order to contribute to this
+project, you must be vouched by the maintainer.
+
+If you haven't contributed yet and want to get vouched, simply create an issue where you introduce yourself and, in your
+own words, say how you would like to contribute.
+
+Only human-written introductions will grant users their vouches. If I notice someone attempt to introduce themselves
+with AI-generated text, they will be denounced, i.e., permanently banned from contributing.
+
+Any other breaches of the contribution guide and the AI usage policy will result in a warning, and repeated offense will
+result in a denunciation.
+
 ## AI usage
 
 Please refer to the [AI usage policy](AI_POLICY.md).
 
 ## Issues
 
-File an issue only if you want to report a bug or request a feature.
+File an issue only if you want to report a bug, request a feature, or are a first-time contributor and need to get
+vouched.
 
 Bug reports should include how to reproduce said bug, if known.
 
@@ -22,7 +37,7 @@ Bug reports should include how to reproduce said bug, if known.
     - Otherwise, feel free to open a regular PR.
 
 **Important:** Open PRs to the `main` branch only if your changes do not introduce incompatibilities with the latest
-release of `egui_dock`, a.k.a. breaking changes. All breaking changes should be merged into a special `release-0.XYZ`
+release of `egui_dock`, a.k.a. breaking changes. All breaking changes should be merged into a special `release-0.x`
 branch instead. This is to make it possible to release non-breaking bugfixes without requiring to update to a new
 incompatible release.
 
