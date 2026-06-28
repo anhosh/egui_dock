@@ -34,6 +34,12 @@ use crate::{
 /// Indexing it with a [`SurfaceIndex`] will yield a [`Tree`] which then contains nodes and tabs.
 ///
 /// [`DockState`] is generic, so you can use any type of data to represent a tab.
+///
+/// # Serialization
+///
+/// `DockState` may be serialized to record the placement of all surfaces.
+///
+/// This does not include serialization of translations.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct DockState<Tab> {
@@ -41,6 +47,7 @@ pub struct DockState<Tab> {
     focused_surface: Option<SurfaceIndex>, // Part of the tree which is in focus.
 
     /// Contains translations of text shown in [`DockArea`](crate::DockArea).
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub translations: Translations,
 }
 

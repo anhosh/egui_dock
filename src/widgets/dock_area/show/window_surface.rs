@@ -1,12 +1,12 @@
 use egui::{
-    vec2, Align, Color32, CornerRadius, CursorIcon, Frame, Layout, Rect, Response, RichText, Sense,
-    Shape, Stroke, Ui, UiBuilder, Vec2, WidgetText,
+    Align, Color32, CornerRadius, CursorIcon, Frame, Layout, Rect, Response, RichText, Sense,
+    Shape, Stroke, Ui, UiBuilder, Vec2, WidgetText, vec2,
 };
 
 use crate::{
+    DockArea, NodeIndex, Style, SurfaceIndex, TabViewer,
     dock_area::{state::State, tab_removal::TabRemoval},
     utils::{fade_visuals, rect_set_size_centered},
-    DockArea, NodeIndex, Style, SurfaceIndex, TabViewer,
 };
 
 impl<Tab> DockArea<'_, Tab> {
