@@ -16,6 +16,8 @@ with AI-generated text, they will be denounced, i.e., permanently banned from co
 Any other breaches of the contribution guide and the AI usage policy will result in a warning, and repeated offense will
 result in a denunciation.
 
+For more details, read vouch's [FAQ](https://github.com/mitchellh/vouch/blob/main/FAQ.md).
+
 ## AI usage
 
 Please refer to the [AI usage policy](AI_POLICY.md).
