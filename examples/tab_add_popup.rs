@@ -13,13 +13,13 @@ fn main() -> eframe::Result<()> {
     )
 }
 
-#[derive(Hash)]
+#[derive(Hash, Debug)]
 enum MyTabKind {
     Regular,
     Fancy,
 }
 
-#[derive(Hash)]
+#[derive(Hash, Debug)]
 struct MyTab {
     kind: MyTabKind,
     path: NodePath,

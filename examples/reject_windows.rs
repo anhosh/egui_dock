@@ -14,12 +14,12 @@ fn main() -> eframe::Result<()> {
 
 struct TabViewer;
 
-#[derive(Hash)]
+#[derive(Hash, Debug)]
 enum Opinion {
     Changing(bool),
     Fixed(bool),
 }
-#[derive(Hash)]
+#[derive(Hash, Debug)]
 struct OpinionatedTab {
     can_become_window: Opinion,
     title: String,
