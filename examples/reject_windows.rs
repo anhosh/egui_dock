@@ -41,10 +41,7 @@ impl egui_dock::TabViewer for TabViewer {
         ui.label(&tab.content);
         match &mut tab.can_become_window {
             Opinion::Changing(opinion) => {
-                ui.add(egui::Checkbox::new(
-                    opinion,
-                    "can be turned into window",
-                ));
+                ui.add(egui::Checkbox::new(opinion, "can be turned into window"));
             }
             Opinion::Fixed(opinion) => {
                 if *opinion {
@@ -58,8 +55,7 @@ impl egui_dock::TabViewer for TabViewer {
 
     fn allowed_in_windows(&self, tab: &mut Self::Tab) -> bool {
         match tab.can_become_window {
-            Opinion::Changing(opinion)
-            | Opinion::Fixed(opinion) => opinion,
+            Opinion::Changing(opinion) | Opinion::Fixed(opinion) => opinion,
         }
     }
 }
