@@ -16,6 +16,10 @@ pub struct TabContextMenuTranslations {
     pub close_button: String,
     /// Button that undocks the tab into a new window.
     pub eject_button: String,
+    /// Button that hides the tab bar.
+    pub hide_tab_bar_button: String,
+    /// Button that shows the tab bar.
+    pub show_tab_bar_button: String,
 }
 
 /// Specifies text displayed in the primary buttons on a tab bar.
@@ -74,6 +78,8 @@ impl TabContextMenuTranslations {
         Self {
             close_button: String::from("Close"),
             eject_button: String::from("Eject"),
+            hide_tab_bar_button: String::from("Hide tab bar"),
+            show_tab_bar_button: String::from("Show tab bar"),
         }
     }
 }

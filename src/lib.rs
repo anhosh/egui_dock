@@ -205,6 +205,8 @@
 //!     tab_context_menu: TabContextMenuTranslations {
 //!         close_button: "Zamknij zakładkę".to_string(),
 //!         eject_button: "Przenieś zakładkę do nowego okna".to_string(),
+//!         hide_tab_bar_button: "Schowaj pasek zakładek".to_string(),
+//!         show_tab_bar_button: "Pokaż pasek zakładek".to_string(),
 //!     },
 //!     leaf: LeafTranslations {
 //!         close_button_disabled_tooltip: "Ten węzeł zawiera niezamykalne zakładki.".to_string(),
@@ -225,6 +227,8 @@
 //! let mut dock_state = DockState::<Tab>::new(vec![]);
 //! dock_state.translations.tab_context_menu.close_button = "タブを閉じる".to_string();
 //! dock_state.translations.tab_context_menu.eject_button = "タブを新しいウィンドウへ移動".to_string();
+//! dock_state.translations.tab_context_menu.hide_tab_bar_button = "タブバーを非表示".to_string();
+//! dock_state.translations.tab_context_menu.show_tab_bar_button = "タブバーを表示".to_string();
 //! dock_state.translations.leaf.close_button_disabled_tooltip = "このノードは閉じられないタブがある".to_string();
 //! dock_state.translations.leaf.close_all_button = "ウィンドウを閉じる".to_string();
 //! dock_state.translations.leaf.close_all_button_menu_hint = "右クリックでこのウィンドウを閉じる".to_string();

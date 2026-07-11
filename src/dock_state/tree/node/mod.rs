@@ -286,6 +286,28 @@ impl<Tab> Node<Tab> {
         }
     }
 
+    /// Returns `true` if the node is a leaf with a hidden tab bar, otherwise `false`.
+    #[inline(always)]
+    pub fn is_tab_bar_hidden(&self) -> bool {
+        match self {
+            Node::Leaf(leaf) => leaf.tab_bar_hidden,
+            _ => false,
+        }
+    }
+
+    /// Sets the tab bar hidden state of the node.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `self` is not a [`Leaf`](Node::Leaf) node.
+    #[inline]
+    pub fn set_tab_bar_hidden(&mut self, tab_bar_hidden: bool) {
+        match self {
+            Node::Leaf(leaf) => leaf.tab_bar_hidden = tab_bar_hidden,
+            _ => panic!("node was not a leaf"),
+        }
+    }
+
     /// Sets the number of layers of collapsed leaf subnodes.
     ///
     /// # Panics
@@ -351,6 +373,7 @@ impl<Tab> Node<Tab> {
                     active,
                     scroll,
                     collapsed,
+                    tab_bar_hidden,
                 } = leaf;
                 let tabs: Vec<_> = tabs.iter().filter_map(function).collect();
                 if tabs.is_empty() {
@@ -363,6 +386,7 @@ impl<Tab> Node<Tab> {
                         active: *active,
                         scroll: *scroll,
                         collapsed: *collapsed,
+                        tab_bar_hidden: *tab_bar_hidden,
                     })
                 }
             }

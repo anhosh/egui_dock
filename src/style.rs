@@ -130,6 +130,18 @@ pub struct ButtonsStyle {
 
     /// Color of the minimize window button's left border.
     pub minimize_window_border_color: Color32,
+
+    /// Color of the show tab bar triangle button.
+    pub show_tab_bar_color: Color32,
+
+    /// Color of the show tab bar triangle button when hovered.
+    pub show_tab_bar_active_color: Color32,
+
+    /// Size of the show tab bar triangle button.
+    pub show_tab_bar_size: f32,
+
+    /// How much the show tab bar button grows when hovered.
+    pub show_tab_bar_hover_expand: f32,
 }
 
 /// Specifies the look and feel of node separators.
@@ -260,6 +272,14 @@ pub struct TabBodyStyle {
 
     /// Colour of the tab's background. By `Default` it's [`Color32::WHITE`].
     pub bg_fill: Color32,
+
+    /// Optional height override for the draggable area when the tab bar is hidden.
+    ///
+    /// When `None` (default), the drag area height equals [`TabBodyStyle::inner_margin`]`.top`.
+    /// When `Some(height)`, the drag area uses this height instead, overlapping the tab body
+    /// content without shifting it down.
+    /// Setting this to `Some(0.0)` disables dragging from the hidden tab bar entirely.
+    pub hidden_tab_bar_drag_height: Option<f32>,
 }
 
 /// Specifies the look and feel of the tab drop overlay.
@@ -395,6 +415,11 @@ impl Default for ButtonsStyle {
             minimize_window_active_color: Color32::WHITE,
             minimize_window_bg_fill: Color32::GRAY,
             minimize_window_border_color: Color32::BLACK,
+
+            show_tab_bar_color: Color32::GRAY,
+            show_tab_bar_active_color: Color32::WHITE,
+            show_tab_bar_size: 10.0,
+            show_tab_bar_hover_expand: 1.0,
         }
     }
 }
@@ -477,6 +502,7 @@ impl Default for TabBodyStyle {
             stroke: Stroke::default(),
             corner_radius: CornerRadius::default(),
             bg_fill: Color32::WHITE,
+            hidden_tab_bar_drag_height: None,
         }
     }
 }
@@ -599,6 +625,8 @@ impl ButtonsStyle {
             minimize_window_color: style.visuals.text_color(),
             minimize_window_active_color: style.visuals.strong_text_color(),
             minimize_window_border_color: style.visuals.widgets.noninteractive.bg_fill,
+            show_tab_bar_color: style.visuals.text_color(),
+            show_tab_bar_active_color: style.visuals.strong_text_color(),
             ..ButtonsStyle::default()
         }
     }
@@ -784,6 +812,7 @@ impl TabBodyStyle {
             stroke: style.visuals.widgets.noninteractive.bg_stroke,
             corner_radius: style.visuals.widgets.active.corner_radius,
             bg_fill: style.visuals.window_fill(),
+            hidden_tab_bar_drag_height: None,
         }
     }
 }
