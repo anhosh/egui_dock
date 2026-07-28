@@ -349,6 +349,10 @@ impl<Tab> Node<Tab> {
                     viewport,
                     tabs,
                     active,
+                    // Filtering can drop arbitrary tabs, invalidating the
+                    // recorded "previous active" index, so we deliberately reset
+                    // it rather than try to remap it through the filter.
+                    prev_active: _,
                     scroll,
                     collapsed,
                 } = leaf;
@@ -361,6 +365,7 @@ impl<Tab> Node<Tab> {
                         viewport: *viewport,
                         tabs,
                         active: *active,
+                        prev_active: None,
                         scroll: *scroll,
                         collapsed: *collapsed,
                     })

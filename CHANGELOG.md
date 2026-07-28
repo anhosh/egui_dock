@@ -1,5 +1,17 @@
 # egui_dock changelog
 
+## Unreleased
+
+### Fixed
+
+- Removing the active tab of a leaf (closing it, or moving/detaching it out via
+  a split) now restores the tab that was active *before* it, instead of always
+  falling back to the left neighbour. This fixes the surprising jump when you
+  append a tab to a leaf (which auto-focuses it) and then move it elsewhere: the
+  leaf used to show the appended tab's neighbour rather than the tab you were
+  actually looking at. Tracked via a new `LeafNode::prev_active` field
+  (`#[serde(default)]`, so existing serialized layouts load unchanged).
+
 ## egui_dock 0.20.1 - 2026/06/28
 
 ### Fixed

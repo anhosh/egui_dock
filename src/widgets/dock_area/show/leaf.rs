@@ -411,7 +411,7 @@ impl<Tab> DockArea<'_, Tab> {
                                     ForcedRemoval(false),
                                 )),
                                 OnCloseResponse::Focus => {
-                                    leaf.active = tab_index;
+                                    leaf.activate_tab_remembering(tab_index);
                                     self.new_focused = Some(path);
                                 }
                                 OnCloseResponse::Ignore => (),
@@ -444,6 +444,12 @@ impl<Tab> DockArea<'_, Tab> {
                 tab_hovered = true;
             }
 
+            // Deferred tab activation: the `tab` borrow below holds `leaf`
+            // mutably until `on_tab_button`, so we cannot call the
+            // whole-`self`-borrowing `activate_tab_remembering` inside the click
+            // handler. Record the intent and apply it once that borrow ends.
+            let mut activate_to: Option<TabIndex> = None;
+
             // Paint hline below each tab unless its active (or option says otherwise).
             let leaf = self.dock_state.leaf_mut(path).unwrap();
             let tab = &mut leaf.tabs[tab_index.0];
@@ -464,7 +470,11 @@ impl<Tab> DockArea<'_, Tab> {
                 || (tabs_ui.memory(|m| m.has_focus(title_id))
                     && tabs_ui.input(|i| i.key_pressed(Key::Enter) || i.key_pressed(Key::Space)))
             {
-                leaf.active = tab_index;
+                // Reading `leaf.active` is a disjoint-field borrow (fine while
+                // `tab` borrows `leaf.tabs`); the actual mutation is deferred.
+                if leaf.active != tab_index {
+                    activate_to = Some(tab_index);
+                }
                 self.new_focused = Some(path);
             }
 
@@ -476,6 +486,16 @@ impl<Tab> DockArea<'_, Tab> {
                     (path, tab_index).into(),
                     ForcedRemoval(false),
                 ));
+            }
+
+            // `tab` is no longer borrowed past this point — safe to take a fresh
+            // `&mut leaf` and funnel through the single activation chokepoint so
+            // `prev_active` is recorded.
+            if let Some(index) = activate_to {
+                self.dock_state
+                    .leaf_mut(path)
+                    .unwrap()
+                    .activate_tab_remembering(index);
             }
         }
 

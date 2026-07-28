@@ -692,8 +692,10 @@ impl<Tab> Tree<Tab> {
         for (index, node) in &mut self.nodes.iter_mut().enumerate() {
             match node {
                 Node::Leaf(leaf) => {
-                    leaf.active = TabIndex(leaf.tabs.len());
-                    leaf.tabs.push(tab);
+                    // Go through `append_tab` rather than inlining the push:
+                    // it is the one place that keeps `prev_active` in sync with
+                    // the auto-focus this method performs.
+                    leaf.append_tab(tab);
                     self.focused_node = Some(NodeIndex(index));
                     return;
                 }

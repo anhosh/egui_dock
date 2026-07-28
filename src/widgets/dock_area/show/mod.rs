@@ -97,7 +97,7 @@ impl<Tab> DockArea<'_, Tab> {
                                 self.dock_state.remove_tab(path);
                             }
                             OnCloseResponse::Focus => {
-                                leaf.active = path.tab;
+                                leaf.activate_tab_remembering(path.tab);
                                 self.new_focused = Some(path.node_path());
                             }
                             OnCloseResponse::Ignore => {
