@@ -1,6 +1,6 @@
 # egui_dock changelog
 
-## egui_dock 0.21.0 - Unreleased
+## egui_dock 0.21.0 - 2026/08/05
 
 ### Added
 
