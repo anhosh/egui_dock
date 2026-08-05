@@ -2,12 +2,21 @@
 
 ## egui_dock 0.21.0 - Unreleased
 
+### Added
+
+- Hiding/showing tab bars for a given leaf. ([#322](https://github.com/anhosh/egui_dock/pull/322))
+
+### Breaking changes
+
+- Upgraded to egui 0.36. ([#326](https://github.com/anhosh/egui_dock/pull/326))
+- Implementing `TabViewer::id()` is now mandatory. ([#324](https://github.com/anhosh/egui_dock/pull/324))
+
 ## egui_dock 0.20.1 - 2026/06/28
 
 ### Fixed
 
-- "Widget changed layer_id" panic when undocking tabs. ([318](https://github.com/anhosh/egui_dock/pull/318))
-- Translations are no longer serialised. ([319](https://github.com/anhosh/egui_dock/pull/319))
+- "Widget changed layer_id" panic when undocking tabs. ([#318](https://github.com/anhosh/egui_dock/pull/318))
+- Translations are no longer serialised. ([#319](https://github.com/anhosh/egui_dock/pull/319))
 
 ## egui_dock 0.20.0 - 2026/06/27
 
