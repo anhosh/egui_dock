@@ -147,7 +147,7 @@ impl MyContext {
         if ui.button("Click each year").clicked() {
             self.age += 1;
         }
-        ui.label(format!("Hello '{}', age {}", &self.title, &self.age));
+        ui.label(format!("Hello '{}', age {}", self.title, self.age));
     }
 
     fn style_editor(&mut self, ui: &mut Ui) {
