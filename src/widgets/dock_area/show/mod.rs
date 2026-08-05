@@ -54,7 +54,16 @@ impl<Tab> DockArea<'_, Tab> {
                         ),
                     }
                 };
+                let src_tab_count = self.dock_state[source.node_path()].tabs_count();
                 self.dock_state.move_tab(source, destination);
+                // unhide tab bar on the source leaf when a tab is dragged out
+                if self.hidable_tab_bars
+                    && let Ok(leaf) = self.dock_state.leaf_mut(source.node_path())
+                    && leaf.tabs.len() < src_tab_count
+                    && leaf.tab_bar_hidden
+                {
+                    leaf.tab_bar_hidden = false;
+                }
             }
         }
 

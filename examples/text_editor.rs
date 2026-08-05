@@ -24,6 +24,10 @@ struct Buffers {
 impl TabViewer for Buffers {
     type Tab = Title;
 
+    fn id(&mut self, tab: &mut Self::Tab) -> egui::Id {
+        egui::Id::new(tab)
+    }
+
     fn title(&mut self, title: &mut Title) -> egui::WidgetText {
         egui::WidgetText::from(&*title)
     }

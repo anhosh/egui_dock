@@ -57,14 +57,27 @@ impl<Tab> DockArea<'_, Tab> {
         if self.dock_state[path].tabs_count() == 0 {
             return;
         }
-        let tabbar_rect = self.tab_bar(
-            ui,
-            state,
-            path,
-            tab_viewer,
-            fade_style.map(|(style, _)| style),
-            collapsed,
-        );
+
+        let leaf = self
+            .dock_state
+            .leaf(path)
+            .expect("This node must be a leaf");
+        let tab_bar_hidden = self.hidable_tab_bars && leaf.tab_bar_hidden;
+        let style = fade_style.map(|(style, _)| style);
+
+        let tabbar_rect = if !tab_bar_hidden {
+            self.tab_bar(ui, state, path, tab_viewer, style, collapsed)
+        } else {
+            // use the top margin of the tab body as a tab bar
+            let style = style.unwrap_or_else(|| self.style.as_ref().unwrap());
+            let drag_height = style
+                .tab
+                .tab_body
+                .hidden_tab_bar_drag_height
+                .unwrap_or(style.tab.tab_body.inner_margin.top as f32);
+            let drag_size = vec2(ui.available_width(), drag_height);
+            Rect::from_min_size(ui.cursor().min, drag_size)
+        };
         self.tab_body(
             ui,
             state,
@@ -76,6 +89,10 @@ impl<Tab> DockArea<'_, Tab> {
             collapsed,
         );
 
+        if tab_bar_hidden {
+            self.hidden_tab_bar_controls(ui, state, path, tabbar_rect, style);
+        }
+
         let tabs = self.dock_state[path]
             .tabs_mut()
             .expect("This node must be a leaf here");
@@ -85,6 +102,109 @@ impl<Tab> DockArea<'_, Tab> {
                     (path, TabIndex(tab_index)).into(),
                     ForcedRemoval(true),
                 ));
+            }
+        }
+    }
+
+    /// Draws controls for the hidden tab bar: a triangle button to show it,
+    /// a right-click context menu, and drag handling on the top margin.
+    fn hidden_tab_bar_controls(
+        &mut self,
+        ui: &mut Ui,
+        state: &mut State,
+        path: NodePath,
+        tabbar_rect: Rect,
+        fade_style: Option<&Style>,
+    ) {
+        let style = fade_style.unwrap_or_else(|| self.style.as_ref().unwrap());
+        let btn_size = style.buttons.show_tab_bar_size;
+        let btn_expand = style.buttons.show_tab_bar_hover_expand;
+        let btn_color = style.buttons.show_tab_bar_color;
+        let btn_active_color = style.buttons.show_tab_bar_active_color;
+
+        // register the drag area first so the button takes priority over it
+        let drag_id = self
+            .id
+            .with((path.surface, "surface"))
+            .with((path.node, "node"))
+            .with("hidden_tab_bar_drag");
+        let drag_response = ui.interact(tabbar_rect, drag_id, Sense::click_and_drag());
+
+        // triangle button in the top-left corner to show the tab bar
+        let btn_rect = Rect::from_min_size(tabbar_rect.left_top(), Vec2::splat(btn_size));
+        let btn_id = self
+            .id
+            .with((path.surface, "surface"))
+            .with((path.node, "node"))
+            .with("show_tab_bar_btn");
+        let btn_response = ui.interact(btn_rect, btn_id, Sense::click());
+        let (draw_rect, color) = if btn_response.hovered() {
+            let expanded_size = Vec2::splat(btn_size + btn_expand);
+            (
+                Rect::from_min_size(btn_rect.left_top(), expanded_size),
+                btn_active_color,
+            )
+        } else {
+            (btn_rect, btn_color)
+        };
+        ui.painter().add(Shape::convex_polygon(
+            vec![
+                draw_rect.left_top(),
+                draw_rect.right_top(),
+                draw_rect.left_bottom(),
+            ],
+            color,
+            Stroke::NONE,
+        ));
+        if btn_response.clicked() {
+            self.dock_state[path]
+                .get_leaf_mut()
+                .expect("This node must be a leaf")
+                .tab_bar_hidden = false;
+        }
+
+        let on_button = btn_response.hovered() || btn_response.clicked();
+
+        // right-click context menu to show the tab bar
+        if self.tab_context_menus && !on_button {
+            let show_button = Button::new(
+                &self
+                    .dock_state
+                    .translations
+                    .tab_context_menu
+                    .show_tab_bar_button,
+            );
+            drag_response.context_menu(|ui| {
+                if ui.add(show_button).clicked() {
+                    self.dock_state[path]
+                        .get_leaf_mut()
+                        .expect("This node must be a leaf")
+                        .tab_bar_hidden = false;
+                    ui.close();
+                }
+            });
+        }
+
+        // allow tab to be draggable via the top margin of the tab body
+
+        let drag_enabled = style
+            .tab
+            .tab_body
+            .hidden_tab_bar_drag_height
+            .is_none_or(|h| h > 0.0);
+        if self.draggable_tabs && drag_enabled && !on_button {
+            if drag_response.hovered() {
+                ui.output_mut(|o| o.cursor_icon = CursorIcon::Grab);
+            }
+            let is_being_dragged = ui.ctx().is_being_dragged(drag_id)
+                && ui.input(|i| i.pointer.is_decidedly_dragging());
+            if is_being_dragged {
+                ui.output_mut(|o| o.cursor_icon = CursorIcon::Grabbing);
+                let active = self.dock_state[path]
+                    .get_leaf()
+                    .expect("This node must be a leaf")
+                    .active;
+                self.try_initiate_tab_drag(ui, state, path, active);
             }
         }
     }
@@ -333,24 +453,10 @@ impl<Tab> DockArea<'_, Tab> {
                 let response =
                     tabs_ui.interact(response.rect, id.with("dragged"), Sense::click_and_drag());
 
-                if let Some(pointer_pos) = tabs_ui.ctx().pointer_interact_pos() {
-                    let start = *state.drag_start.get_or_insert(pointer_pos);
-                    let delta = pointer_pos - start;
-                    if delta.x.abs() > 30.0 || delta.y.abs() > 6.0 {
-                        tabs_ui
-                            .ctx()
-                            .transform_layer_shapes(layer_id, TSTransform::new(delta, 1.0));
-
-                        tabs_ui.memory_mut(|mem| {
-                            mem.data.insert_temp(
-                                self.id.with("drag_data"),
-                                Some(DragData {
-                                    src: TreeComponent::Tab((path, tab_index).into()),
-                                    rect: self.dock_state[path].rect().unwrap(),
-                                }),
-                            );
-                        });
-                    }
+                if let Some(delta) = self.try_initiate_tab_drag(tabs_ui, state, path, tab_index) {
+                    tabs_ui
+                        .ctx()
+                        .transform_layer_shapes(layer_id, TSTransform::new(delta, 1.0));
                 }
 
                 (response, title_id)
@@ -389,6 +495,13 @@ impl<Tab> DockArea<'_, Tab> {
                         Button::new(&self.dock_state.translations.tab_context_menu.eject_button);
                     let close_button =
                         Button::new(&self.dock_state.translations.tab_context_menu.close_button);
+                    let hide_tab_bar_button = Button::new(
+                        &self
+                            .dock_state
+                            .translations
+                            .tab_context_menu
+                            .hide_tab_bar_button,
+                    );
 
                     response.context_menu(|ui| {
                         let leaf = self.dock_state[path]
@@ -417,6 +530,9 @@ impl<Tab> DockArea<'_, Tab> {
                                 OnCloseResponse::Ignore => (),
                             }
                             ui.close();
+                        }
+                        if self.hidable_tab_bars && ui.add(hide_tab_bar_button).clicked() {
+                            leaf.tab_bar_hidden = true;
                         }
                     });
                 }
@@ -848,6 +964,32 @@ impl<Tab> DockArea<'_, Tab> {
         );
     }
 
+    /// Checks if a drag has exceeded the movement threshold, and if so,
+    /// stores DragData for the given tab. Returns the drag delta if stored.
+    fn try_initiate_tab_drag(
+        &self,
+        ui: &Ui,
+        state: &mut State,
+        path: NodePath,
+        tab_index: TabIndex,
+    ) -> Option<Vec2> {
+        let pointer_pos = ui.ctx().pointer_interact_pos()?;
+        let start = *state.drag_start.get_or_insert(pointer_pos);
+        let delta = pointer_pos - start;
+        (delta.x.abs() > 30.0 || delta.y.abs() > 6.0).then(|| {
+            ui.memory_mut(|mem| {
+                mem.data.insert_temp(
+                    self.id.with("drag_data"),
+                    Some(DragData {
+                        src: TreeComponent::Tab((path, tab_index).into()),
+                        rect: self.dock_state[path].rect().unwrap(),
+                    }),
+                );
+            });
+            delta
+        })
+    }
+
     fn draw_arrow(collapsed: bool, ui: &mut Ui, color: Color32, arrow_rect: Rect) {
         ui.painter().add(Shape::convex_polygon(
             if collapsed {
@@ -1194,6 +1336,7 @@ impl<Tab> DockArea<'_, Tab> {
             if ui.input(|i| i.pointer.any_click())
                 && let Some(pos) = state.last_hover_pos
                 && body_rect.contains(pos)
+                && !tabbar_rect.contains(pos)
                 && Some(ui.layer_id()) == ui.ctx().layer_id_at(pos)
             {
                 self.new_focused = Some(path);

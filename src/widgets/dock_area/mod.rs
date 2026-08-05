@@ -25,6 +25,7 @@ pub struct DockArea<'tree, Tab> {
     show_close_buttons: bool,
     tab_context_menus: bool,
     draggable_tabs: bool,
+    hidable_tab_bars: bool,
     show_tab_name_on_hover: bool,
     show_window_close_buttons: bool,
     show_window_collapse_buttons: bool,
@@ -57,6 +58,7 @@ impl<'tree, Tab> DockArea<'tree, Tab> {
             show_close_buttons: true,
             tab_context_menus: true,
             draggable_tabs: true,
+            hidable_tab_bars: false,
             show_tab_name_on_hover: false,
             allowed_splits: AllowedSplits::default(),
             to_remove: Vec::new(),
@@ -121,6 +123,13 @@ impl<'tree, Tab> DockArea<'tree, Tab> {
     /// By default it's `true`.
     pub fn draggable_tabs(mut self, draggable_tabs: bool) -> Self {
         self.draggable_tabs = draggable_tabs;
+        self
+    }
+
+    /// Whether tab bars can be hidden with the context menu.
+    /// By default it's `false`.
+    pub fn hidable_tab_bars(mut self, hidable_tab_bars: bool) -> Self {
+        self.hidable_tab_bars = hidable_tab_bars;
         self
     }
 

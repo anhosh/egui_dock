@@ -13,11 +13,13 @@ fn main() -> eframe::Result<()> {
     )
 }
 
+#[derive(Hash, Debug)]
 enum MyTabKind {
     Regular,
     Fancy,
 }
 
+#[derive(Hash, Debug)]
 struct MyTab {
     kind: MyTabKind,
     path: NodePath,
@@ -67,6 +69,10 @@ struct TabViewer<'a> {
 
 impl egui_dock::TabViewer for TabViewer<'_> {
     type Tab = MyTab;
+
+    fn id(&mut self, tab: &mut Self::Tab) -> egui::Id {
+        egui::Id::new(tab)
+    }
 
     fn title(&mut self, tab: &mut Self::Tab) -> egui::WidgetText {
         tab.title().into()

@@ -1,5 +1,17 @@
 # egui_dock changelog
 
+## egui_dock 0.21.0 - 2026/08/05
+
+### Added
+
+- Hiding/showing tab bars for a given leaf. ([#322](https://github.com/anhosh/egui_dock/pull/322))
+
+### Breaking changes
+
+- Upgraded to egui 0.36.
+- Updated MSRV from 1.92 to 1.95.
+- Implementing `TabViewer::id()` is now mandatory. ([#324](https://github.com/anhosh/egui_dock/pull/324))
+
 ## egui_dock 0.20.1 - 2026/06/28
 
 ### Fixed

@@ -90,6 +90,10 @@ struct MyApp {
 impl TabViewer for MyContext {
     type Tab = String;
 
+    fn id(&mut self, tab: &mut Self::Tab) -> egui::Id {
+        egui::Id::new(tab)
+    }
+
     fn title(&mut self, tab: &mut Self::Tab) -> WidgetText {
         tab.as_str().into()
     }
@@ -143,7 +147,7 @@ impl MyContext {
         if ui.button("Click each year").clicked() {
             self.age += 1;
         }
-        ui.label(format!("Hello '{}', age {}", &self.title, &self.age));
+        ui.label(format!("Hello '{}', age {}", self.title, self.age));
     }
 
     fn style_editor(&mut self, ui: &mut Ui) {

@@ -14,14 +14,24 @@ fn main() -> eframe::Result<()> {
 
 struct TabViewer;
 
+#[derive(Hash, Debug)]
+enum Opinion {
+    Changing(bool),
+    Fixed(bool),
+}
+#[derive(Hash, Debug)]
 struct OpinionatedTab {
-    can_become_window: Result<bool, bool>,
+    can_become_window: Opinion,
     title: String,
     content: String,
 }
 
 impl egui_dock::TabViewer for TabViewer {
     type Tab = OpinionatedTab;
+
+    fn id(&mut self, tab: &mut Self::Tab) -> egui::Id {
+        egui::Id::new(tab)
+    }
 
     fn title(&mut self, tab: &mut Self::Tab) -> egui::WidgetText {
         (&tab.title).into()
@@ -30,14 +40,11 @@ impl egui_dock::TabViewer for TabViewer {
     fn ui(&mut self, ui: &mut egui::Ui, tab: &mut Self::Tab) {
         ui.label(&tab.content);
         match &mut tab.can_become_window {
-            Ok(changing_opinion) => {
-                ui.add(egui::Checkbox::new(
-                    changing_opinion,
-                    "can be turned into window",
-                ));
+            Opinion::Changing(opinion) => {
+                ui.add(egui::Checkbox::new(opinion, "can be turned into window"));
             }
-            Err(fixed_opinion) => {
-                if *fixed_opinion {
+            Opinion::Fixed(opinion) => {
+                if *opinion {
                     ui.small("this tab can exist in a window");
                 } else {
                     ui.small("this tab cannot exist in a window");
@@ -48,7 +55,7 @@ impl egui_dock::TabViewer for TabViewer {
 
     fn allowed_in_windows(&self, tab: &mut Self::Tab) -> bool {
         match tab.can_become_window {
-            Ok(opinion) | Err(opinion) => opinion,
+            Opinion::Changing(opinion) | Opinion::Fixed(opinion) => opinion,
         }
     }
 }
@@ -61,12 +68,12 @@ impl Default for MyApp {
     fn default() -> Self {
         let mut tree = DockState::new(vec![
             OpinionatedTab {
-                can_become_window: Ok(false),
+                can_become_window: Opinion::Changing(false),
                 title: "old tab".to_owned(),
                 content: "since when could tabs become windows?".to_string(),
             },
             OpinionatedTab {
-                can_become_window: Err(false),
+                can_become_window: Opinion::Fixed(false),
                 title: "grumpy tab".to_owned(),
                 content: "I don't want to be a window!".to_string(),
             },
@@ -77,7 +84,7 @@ impl Default for MyApp {
             NodeIndex::root(),
             0.6,
             vec![OpinionatedTab {
-                can_become_window: Ok(true),
+                can_become_window: Opinion::Changing(true),
                 title: "wise tab".to_owned(),
                 content: "egui_dock 0.7!".to_string(),
             }],
@@ -86,7 +93,7 @@ impl Default for MyApp {
             a,
             0.4,
             vec![OpinionatedTab {
-                can_become_window: Ok(true),
+                can_become_window: Opinion::Changing(true),
                 title: "instructional tab".to_owned(),
                 content: "This demo is meant to showcase the ability for tabs to become/be placed inside windows. 
                 \nindividual tabs have the ability to accept/reject being put/turned into a window. 
@@ -96,7 +103,7 @@ impl Default for MyApp {
             }],
         );
         let _ = tree.add_window(vec![OpinionatedTab {
-            can_become_window: Err(true),
+            can_become_window: Opinion::Fixed(true),
             title: "egotistical tab".to_owned(),
             content: "im above you all!".to_string(),
         }]);

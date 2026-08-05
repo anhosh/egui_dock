@@ -25,6 +25,9 @@ pub struct LeafNode<Tab> {
 
     /// Whether the leaf is collapsed.
     pub collapsed: bool,
+
+    /// Whether the leaf tab bar is hidden.
+    pub tab_bar_hidden: bool,
 }
 
 impl<Tab> LeafNode<Tab> {
@@ -37,6 +40,7 @@ impl<Tab> LeafNode<Tab> {
             active: TabIndex(0),
             scroll: 0.0,
             collapsed: false,
+            tab_bar_hidden: false,
         }
     }
 
