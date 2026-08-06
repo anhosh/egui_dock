@@ -1,8 +1,12 @@
 use egui::Rect;
 
-///the inner data of a [``Node::Horizontal``](crate::Node)/[``Node::Vertical``](crate::Node), which splits into two further nodes.
+/// The inner data of a [``Node::Horizontal``](crate::Node)/[``Node::Vertical``](crate::Node), which splits into two further nodes.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct SplitNode {
     /// The rectangle in which all children of this node are drawn.
     pub rect: Rect,
@@ -41,5 +45,11 @@ impl SplitNode {
     /// Get the Area which this ``SplitNode`` occupies.
     pub fn rect(&self) -> Rect {
         self.rect
+    }
+}
+
+impl Default for SplitNode {
+    fn default() -> Self {
+        Self::new(Rect::NOTHING, 0.0, false, 0)
     }
 }

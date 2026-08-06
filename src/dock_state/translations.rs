@@ -1,6 +1,10 @@
 /// Groups together labels from different elements of the [`DockArea`](crate::DockArea).
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct Translations {
     /// Text overrides for buttons in tab context menus.
     pub tab_context_menu: TabContextMenuTranslations,
@@ -10,7 +14,11 @@ pub struct Translations {
 
 /// Specifies text in buttons displayed in the context menu displayed upon right-clicking on a tab.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct TabContextMenuTranslations {
     /// Button that closes the tab.
     pub close_button: String,
@@ -24,7 +32,11 @@ pub struct TabContextMenuTranslations {
 
 /// Specifies text displayed in the primary buttons on a tab bar.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct LeafTranslations {
     /// Message in the tooltip shown while hovering over a grayed out X button of a leaf
     /// containing non-closable tabs.
@@ -84,6 +96,12 @@ impl TabContextMenuTranslations {
     }
 }
 
+impl Default for TabContextMenuTranslations {
+    fn default() -> Self {
+        Self::english()
+    }
+}
+
 impl LeafTranslations {
     /// Default English translations.
     pub fn english() -> Self {
@@ -109,5 +127,11 @@ impl LeafTranslations {
                 "Press modifier keys (Shift by default) or right click to minimize this window.",
             ),
         }
+    }
+}
+
+impl Default for LeafTranslations {
+    fn default() -> Self {
+        Self::english()
     }
 }

@@ -3,8 +3,12 @@ use std::ops::Range;
 use crate::SurfaceIndex;
 
 /// Wrapper around indices to the collection of nodes inside a [`Tree`](crate::Tree).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct NodeIndex(pub usize);
 
 impl From<usize> for NodeIndex {
@@ -98,8 +102,12 @@ impl NodeIndex {
 }
 
 /// A full path to locate a node in an entire dock state.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct NodePath {
     /// Index of the surface owning the node.
     pub surface: SurfaceIndex,
