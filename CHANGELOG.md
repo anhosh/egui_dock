@@ -4,7 +4,8 @@
 
 ### Fixed
 
-- `DockState` serialised by previous versions of egui_dock failing to deserialise in 0.20.0
+- `DockState` serialised by previous versions of egui_dock failing to deserialise in 0.20.0.
+  ([#337](https://github.com/anhosh/egui_dock/pull/337))
 
 ## egui_dock 0.21.0 - 2026/08/05
 
