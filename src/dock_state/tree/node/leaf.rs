@@ -6,7 +6,11 @@ use crate::{Error, Result, TabIndex};
 
 /// The inner data of a [``Node::Leaf``](crate::Node), which contains tabs and can be collapsed.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct LeafNode<Tab> {
     /// The full rectangle - tab bar plus tab body.
     pub rect: Rect,
@@ -148,6 +152,12 @@ impl<Tab> LeafNode<Tab> {
         self.tabs
             .get_mut(self.active.0)
             .map(|tab| (self.viewport, tab))
+    }
+}
+
+impl<Tab> Default for LeafNode<Tab> {
+    fn default() -> Self {
+        Self::new(Vec::new())
     }
 }
 

@@ -123,7 +123,11 @@ impl TabDestination {
 ///  - left child contains Top node.
 ///  - right child contains Bottom node.
 #[derive(Clone)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct Tree<Tab> {
     // Binary tree vector
     pub(super) nodes: Vec<Node<Tab>>,

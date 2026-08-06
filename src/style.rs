@@ -48,7 +48,11 @@ pub enum TabAddAlign {
 /// #
 /// ```
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 #[allow(missing_docs)]
 pub struct Style {
     /// Sets padding to indent from the edges of the window. By `Default` it's `None`.
@@ -66,7 +70,11 @@ pub struct Style {
 
 /// Specifies the look and feel of buttons.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct ButtonsStyle {
     /// Color of the close tab button.
     pub close_tab_color: Color32,
@@ -146,7 +154,11 @@ pub struct ButtonsStyle {
 
 /// Specifies the look and feel of node separators.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct SeparatorStyle {
     /// Width of the rectangle separator between nodes. By `Default` it's `1.0`.
     pub width: f32,
@@ -171,7 +183,11 @@ pub struct SeparatorStyle {
 
 /// Specifies the look and feel of tab bars.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct TabBarStyle {
     /// Background color of tab bar. By `Default` it's [`Color32::WHITE`].
     pub bg_fill: Color32,
@@ -199,7 +215,11 @@ pub struct TabBarStyle {
 
 /// Specifies the look and feel of an individual tab.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct TabStyle {
     /// Style of the tab when it is active.
     pub active: TabInteractionStyle,
@@ -242,7 +262,11 @@ pub struct TabStyle {
 
 /// Specifies the look and feel of individual tabs while they are being interacted with.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct TabInteractionStyle {
     /// Color of the outline around tabs. By `Default` it's [`Color32::BLACK`].
     pub outline_color: Color32,
@@ -259,7 +283,11 @@ pub struct TabInteractionStyle {
 
 /// Specifies the look and feel of the tab body.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct TabBodyStyle {
     /// Inner margin of tab body. By `Default` it's `Margin::same(4.0)`.
     pub inner_margin: Margin,
@@ -284,7 +312,11 @@ pub struct TabBodyStyle {
 
 /// Specifies the look and feel of the tab drop overlay.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct OverlayStyle {
     /// Sets selection color for the placing area of the tab where this tab targeted on it.
     /// By `Default` it's `(0, 191, 255)` (light blue) with `0.5` capacity.
@@ -320,9 +352,13 @@ pub struct OverlayStyle {
     pub feel: OverlayFeel,
 }
 
-/// Specifies the feel of the tab drop overlay, i.e anything non visual about the overlay.
+/// Specifies the feel of the tab drop overlay, i.e. anything non-visual about the overlay.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct OverlayFeel {
     /// range is `0.0..=1.0`.
     pub window_drop_coverage: f32,
@@ -357,7 +393,11 @@ pub enum OverlayType {
 
 /// Highlighting on the currently hovered leaf.
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct LeafHighlighting {
     /// Fill color.
     pub color: Color32,

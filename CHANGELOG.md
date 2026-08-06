@@ -1,5 +1,11 @@
 # egui_dock changelog
 
+## egui_dock 0.21.0 - 2026/08/06
+
+### Fixed
+
+- `DockState` serialised by previous versions of egui_dock failing to deserialise in 0.20.0
+
 ## egui_dock 0.21.0 - 2026/08/05
 
 ### Added

@@ -1,8 +1,12 @@
 use crate::{NodeIndex, NodePath, SurfaceIndex};
 
 /// Identifies a tab within a [`Node`](crate::Node).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Ord, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct TabIndex(pub usize);
 
 impl From<usize> for TabIndex {
@@ -13,8 +17,12 @@ impl From<usize> for TabIndex {
 }
 
 /// A full path to locate a tab within an entire dock state.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
 pub struct TabPath {
     /// Index of the surface owning the node for the tab.
     pub surface: SurfaceIndex,
