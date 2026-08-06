@@ -41,10 +41,7 @@ use crate::{
 ///
 /// This does not include serialization of translations.
 #[derive(Clone, Debug)]
-#[cfg_attr(
-    feature = "serde",
-    derive(serde::Deserialize, serde::Serialize)
-)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct DockState<Tab> {
     surfaces: Vec<Surface<Tab>>,
     focused_surface: Option<SurfaceIndex>, // Part of the tree which is in focus.
