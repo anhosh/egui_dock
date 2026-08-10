@@ -250,6 +250,13 @@ impl MyContext {
                 ));
                 ui.end_row();
 
+                ui.label("Arrow key step distance:");
+                ui.add(Slider::new(
+                    &mut style.separator.arrow_key_step_distance,
+                    1.0..=64.0,
+                ));
+                ui.end_row();
+
                 ui.label("Idle color:");
                 color_edit_button_srgba(ui, &mut style.separator.color_idle, Alpha::OnlyBlend);
                 ui.end_row();

@@ -120,7 +120,7 @@ fn junction_rect(handles: &[SeparatorHandle], members: &[usize]) -> Rect {
     rect
 }
 
-fn arrow_key_offset(ui: &Ui, response: &Response) -> Option<Vec2> {
+fn arrow_key_offset(ui: &Ui, response: &Response, step: f32) -> Option<Vec2> {
     let should_respond = ui.input(|i| i.modifiers.command || i.modifiers.shift);
 
     if response.has_focus() {
@@ -145,13 +145,13 @@ fn arrow_key_offset(ui: &Ui, response: &Response) -> Option<Vec2> {
 
     ui.input(|i| {
         if i.key_pressed(Key::ArrowUp) {
-            Some(vec2(0., -16.))
+            Some(vec2(0., -step))
         } else if i.key_pressed(Key::ArrowDown) {
-            Some(vec2(0., 16.))
+            Some(vec2(0., step))
         } else if i.key_pressed(Key::ArrowLeft) {
-            Some(vec2(-16., 0.))
+            Some(vec2(-step, 0.))
         } else if i.key_pressed(Key::ArrowRight) {
-            Some(vec2(16., 0.))
+            Some(vec2(step, 0.))
         } else {
             None
         }
@@ -220,7 +220,7 @@ impl<Tab> DockArea<'_, Tab> {
                 let response = ui.allocate_rect(interact_rect, Sense::click_and_drag())
                     .on_hover_and_drag_cursor(paste!{ CursorIcon::[<Resize orientation>]});
 
-                let arrow_key_offset = arrow_key_offset(ui, &response);
+                let arrow_key_offset = arrow_key_offset(ui, &response, style.separator.arrow_key_step_distance);
 
                 let midpoint = rect.min.dim_point + rect.dim_size() * split.fraction;
                 separator.min.dim_point = map_to_pixel(
@@ -277,7 +277,7 @@ impl<Tab> DockArea<'_, Tab> {
         let style = fade_style.unwrap_or_else(|| self.style.as_ref().unwrap());
         let mut junctions = find_junctions(handles, style.separator.junction_merge_distance);
 
-        // Keep junctions that are being dragged consistent across frames
+        // Keep the junction that is being dragged consistent across frames
         if let Some(frozen) = junction_frozen_members(state, surf_index, handles) {
             junctions.retain(|junction| !junction.members.iter().any(|m| frozen.contains(m)));
             junctions.insert(
@@ -314,7 +314,8 @@ impl<Tab> DockArea<'_, Tab> {
                 );
             }
 
-            let arrow_key_offset = arrow_key_offset(ui, &response);
+            let arrow_key_offset =
+                arrow_key_offset(ui, &response, style.separator.arrow_key_step_distance);
 
             if response.dragged() || response.hovered() || response.has_focus() {
                 let color = if response.dragged() {
