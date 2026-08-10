@@ -41,8 +41,8 @@ fn find_junctions(handles: &[SeparatorHandle], merge_distance: f32) -> Vec<Separ
 
     // Filter for perpendicular separators pairs only
     let mut junctions: Vec<SeparatorJunction> = Vec::new();
-    for &x in &x_seps {
-        for &y in &y_seps {
+    for &x in x_seps.iter() {
+        for &y in y_seps.iter() {
             let (a, b) = (handles[x].interact_rect, handles[y].interact_rect);
             if a.intersects(b) {
                 junctions.push(SeparatorJunction {
@@ -322,7 +322,7 @@ impl<Tab> DockArea<'_, Tab> {
                 } else {
                     style.separator.color_hovered
                 };
-                for &member in &junction.members {
+                for &member in junction.members.iter() {
                     ui.painter()
                         .rect_filled(handles[member].separator, CornerRadius::ZERO, color);
                 }
@@ -332,7 +332,7 @@ impl<Tab> DockArea<'_, Tab> {
             // members that are only near-aligned keep the offset between them.
             let delta = arrow_key_offset.unwrap_or(response.drag_delta());
             let reset = response.double_clicked();
-            for &member in &junction.members {
+            for &member in junction.members.iter() {
                 let handle = handles[member];
                 if let Node::Horizontal(split) | Node::Vertical(split) =
                     &mut self.dock_state[handle.path]
