@@ -25,6 +25,7 @@ pub struct DockArea<'tree, Tab> {
     show_close_buttons: bool,
     tab_context_menus: bool,
     draggable_tabs: bool,
+    draggable_separator_junctions: bool,
     hidable_tab_bars: bool,
     show_tab_name_on_hover: bool,
     show_window_close_buttons: bool,
@@ -58,6 +59,7 @@ impl<'tree, Tab> DockArea<'tree, Tab> {
             show_close_buttons: true,
             tab_context_menus: true,
             draggable_tabs: true,
+            draggable_separator_junctions: true,
             hidable_tab_bars: false,
             show_tab_name_on_hover: false,
             allowed_splits: AllowedSplits::default(),
@@ -123,6 +125,13 @@ impl<'tree, Tab> DockArea<'tree, Tab> {
     /// By default it's `true`.
     pub fn draggable_tabs(mut self, draggable_tabs: bool) -> Self {
         self.draggable_tabs = draggable_tabs;
+        self
+    }
+
+    /// Whether the junction of two perpendicular separators can be dragged as one point.
+    /// By default it's `true`.
+    pub fn draggable_separator_junctions(mut self, draggable_separator_junctions: bool) -> Self {
+        self.draggable_separator_junctions = draggable_separator_junctions;
         self
     }
 

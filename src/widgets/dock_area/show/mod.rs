@@ -301,14 +301,19 @@ impl<Tab> DockArea<'_, Tab> {
         // Finally, draw separators so that their "interaction zone" is above
         // bodies (see `SeparatorStyle::extra_interact_width`).
         let fade_style = fade_style.map(|(style, _)| style);
+        let mut separators = Vec::new();
         for node_index in self.dock_state[surf_index].breadth_first_index_iter() {
             let path = NodePath {
                 surface: surf_index,
                 node: node_index,
             };
             if self.dock_state[surf_index][node_index].is_parent() {
-                self.show_separator(ui, path, fade_style);
+                separators.extend(self.show_separator(ui, path, fade_style));
             }
+        }
+
+        if self.draggable_separator_junctions {
+            self.show_separator_junctions(ui, &separators, fade_style);
         }
     }
 
@@ -442,5 +447,4 @@ impl<Tab> DockArea<'_, Tab> {
             }
         }
     }
-
 }

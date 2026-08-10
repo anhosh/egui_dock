@@ -171,6 +171,10 @@ pub struct SeparatorStyle {
     /// `bigger value > less allowed offset` for the current window size.
     pub extra: f32,
 
+    /// Maximum distance between two perpendicular separators that could be dragged as
+    /// one junction. By `Default` it's `8.0`.
+    pub junction_merge_distance: f32,
+
     /// Idle color of the rectangle separator. By `Default` it's [`Color32::BLACK`].
     pub color_idle: Color32,
 
@@ -470,6 +474,7 @@ impl Default for SeparatorStyle {
             width: 1.0,
             extra_interact_width: 2.0,
             extra: 175.0,
+            junction_merge_distance: 8.0,
             color_idle: Color32::BLACK,
             color_hovered: Color32::GRAY,
             color_dragged: Color32::WHITE,
