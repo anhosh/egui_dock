@@ -1,7 +1,7 @@
 use egui::{Context, Id, Pos2};
 
 use super::drag_and_drop::{DragData, DragDropState, HoverData};
-use super::show::Axis;
+use super::show::SeparatorAxis;
 use crate::{NodePath, Style, SurfaceIndex};
 
 #[derive(Clone, Debug, Default)]
@@ -10,7 +10,7 @@ pub(super) struct State {
     pub last_hover_pos: Option<Pos2>,
     pub dnd: Option<DragDropState>,
     pub window_fade: Option<(f64, SurfaceIndex)>,
-    pub dragged_junction: Option<Vec<(NodePath, Axis)>>,
+    pub dragged_junction: Option<Vec<(NodePath, SeparatorAxis)>>,
 }
 
 impl State {

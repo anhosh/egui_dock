@@ -8,7 +8,7 @@ use crate::{
 };
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub(in crate::widgets::dock_area) enum Axis {
+pub(in crate::widgets::dock_area) enum SeparatorAxis {
     /// vertical line, left/right split
     X,
     /// horizontal line, top/bottom split
@@ -18,7 +18,7 @@ pub(in crate::widgets::dock_area) enum Axis {
 #[derive(Copy, Clone, Debug)]
 pub(super) struct SeparatorHandle {
     pub(super) path: NodePath,
-    pub(super) axis: Axis,
+    pub(super) axis: SeparatorAxis,
     /// Painted rect
     pub(super) separator: Rect,
     /// Grab area
@@ -35,8 +35,8 @@ pub(super) struct SeparatorJunction {
 fn find_junctions(handles: &[SeparatorHandle], merge_distance: f32) -> Vec<SeparatorJunction> {
     let (x_seps, y_seps): (Vec<_>, Vec<_>) =
         (0..handles.len()).partition(|&i| match handles[i].axis {
-            Axis::X => true,
-            Axis::Y => false,
+            SeparatorAxis::X => true,
+            SeparatorAxis::Y => false,
         });
 
     // Filter for perpendicular separators pairs only
@@ -82,7 +82,7 @@ fn find_junctions(handles: &[SeparatorHandle], merge_distance: f32) -> Vec<Separ
 }
 
 /// Returns the index in `handles` of the members of the junction being dragged, if any.
-fn frozen_members(
+fn junction_frozen_members(
     state: &mut State,
     surf_index: SurfaceIndex,
     handles: &[SeparatorHandle],
@@ -158,10 +158,10 @@ fn arrow_key_offset(ui: &Ui, response: &Response) -> Option<Vec2> {
     })
 }
 
-fn apply_separator_delta(split: &mut SplitNode, axis: Axis, delta: Vec2, style: &SeparatorStyle) {
+fn apply_separator_delta(split: &mut SplitNode, axis: SeparatorAxis, delta: Vec2, style: &SeparatorStyle) {
     let (range, delta) = match axis {
-        Axis::X => (split.rect.width(), delta.x),
-        Axis::Y => (split.rect.height(), delta.y),
+        SeparatorAxis::X => (split.rect.width(), delta.x),
+        SeparatorAxis::Y => (split.rect.height(), delta.y),
     };
 
     if range > 0.0 {
@@ -241,7 +241,7 @@ impl<Tab> DockArea<'_, Tab> {
 
                 handle = Some(SeparatorHandle {
                     path,
-                    axis: Axis::sep_axis,
+                    axis: SeparatorAxis::sep_axis,
                     separator,
                     interact_rect,
                 });
@@ -250,7 +250,7 @@ impl<Tab> DockArea<'_, Tab> {
                 // otherwise it may overlap on other separator / bodies when
                 // shrunk fast.
                 let delta = arrow_key_offset.unwrap_or(response.drag_delta());
-                apply_separator_delta(split, Axis::sep_axis, delta, &style.separator);
+                apply_separator_delta(split, SeparatorAxis::sep_axis, delta, &style.separator);
 
                 if response.double_clicked() {
                     split.fraction = 0.5;
@@ -273,7 +273,7 @@ impl<Tab> DockArea<'_, Tab> {
         let mut junctions = find_junctions(handles, style.separator.junction_merge_distance);
 
         // Keep junctions that are being dragged consistent across frames
-        if let Some(frozen) = frozen_members(state, surf_index, handles) {
+        if let Some(frozen) = junction_frozen_members(state, surf_index, handles) {
             junctions.retain(|junction| !junction.members.iter().any(|m| frozen.contains(m)));
             junctions.insert(
                 0,

@@ -17,7 +17,7 @@ mod main_surface;
 mod separator;
 mod window_surface;
 
-pub(super) use separator::Axis;
+pub(super) use separator::SeparatorAxis;
 
 impl<Tab> DockArea<'_, Tab> {
     /// Shows the docking hierarchy inside a [`Ui`].
