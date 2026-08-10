@@ -2,10 +2,13 @@ use duplicate::duplicate;
 use egui::{CornerRadius, CursorIcon, EventFilter, Key, Rect, Response, Sense, Ui, Vec2, vec2};
 use paste::paste;
 
-use crate::{DockArea, Node, NodePath, SeparatorStyle, SplitNode, Style, utils::map_to_pixel};
+use crate::{
+    DockArea, Node, NodePath, SeparatorStyle, SplitNode, Style, SurfaceIndex,
+    dock_area::state::State, utils::map_to_pixel,
+};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub(super) enum Axis {
+pub(in crate::widgets::dock_area) enum Axis {
     /// vertical line, left/right split
     X,
     /// horizontal line, top/bottom split
@@ -76,6 +79,45 @@ fn find_junctions(handles: &[SeparatorHandle], merge_distance: f32) -> Vec<Separ
     }
 
     junctions
+}
+
+/// Returns the index in `handles` of the members of the junction being dragged, if any.
+fn frozen_members(
+    state: &mut State,
+    surf_index: SurfaceIndex,
+    handles: &[SeparatorHandle],
+) -> Option<Vec<usize>> {
+    let members = state.dragged_junction.as_ref()?;
+    if members.first()?.0.surface != surf_index {
+        return None;
+    }
+
+    let resolved = members
+        .iter()
+        .map(|&(path, axis)| {
+            handles
+                .iter()
+                .position(|handle| handle.path == path && handle.axis == axis)
+        })
+        .collect::<Option<Vec<_>>>();
+
+    if resolved.is_none() {
+        state.dragged_junction = None;
+    }
+    resolved
+}
+
+fn junction_rect(handles: &[SeparatorHandle], members: &[usize]) -> Rect {
+    let mut rect = Rect::NOTHING;
+    for &a in members {
+        for &b in members {
+            let (ra, rb) = (handles[a].interact_rect, handles[b].interact_rect);
+            if handles[a].axis != handles[b].axis && ra.intersects(rb) {
+                rect = rect.union(ra.intersect(rb));
+            }
+        }
+    }
+    rect
 }
 
 fn arrow_key_offset(ui: &Ui, response: &Response) -> Option<Vec2> {
@@ -219,30 +261,56 @@ impl<Tab> DockArea<'_, Tab> {
         handle
     }
 
-    /// Drags every separator meeting at a junction at once.
-    ///
-    /// Must be called after all separators of a surface have been shown, so that the junctions are
-    /// allocated on top of them and take the clicks they overlap.
     pub(super) fn show_separator_junctions(
         &mut self,
         ui: &mut Ui,
+        state: &mut State,
+        surf_index: SurfaceIndex,
         handles: &[SeparatorHandle],
         fade_style: Option<&Style>,
     ) {
         let style = fade_style.unwrap_or_else(|| self.style.as_ref().unwrap());
-        let junctions = find_junctions(handles, style.separator.junction_merge_distance);
+        let mut junctions = find_junctions(handles, style.separator.junction_merge_distance);
+
+        // Keep junctions that are being dragged consistent across frames
+        if let Some(frozen) = frozen_members(state, surf_index, handles) {
+            junctions.retain(|junction| !junction.members.iter().any(|m| frozen.contains(m)));
+            junctions.insert(
+                0,
+                SeparatorJunction {
+                    rect: junction_rect(handles, &frozen),
+                    members: frozen,
+                },
+            );
+        }
 
         for junction in junctions {
             let interact_rect = junction
                 .rect
                 .expand(style.separator.extra_interact_width / 2.0);
+
+            // Keying on the members is necessary to keep the drag going in case the tree is
+            // restructured between frames.
+            let mut paths: Vec<NodePath> =
+                junction.members.iter().map(|&m| handles[m].path).collect();
+            paths.sort_unstable_by_key(|path| (path.surface.0, path.node.0));
+            let id = self.id.with("separator_junction").with(&paths);
             let response = ui
-                .allocate_rect(interact_rect, Sense::click_and_drag())
+                .interact(interact_rect, id, Sense::click_and_drag())
                 .on_hover_and_drag_cursor(CursorIcon::Move);
+
+            if response.drag_started() {
+                state.dragged_junction = Some(
+                    junction
+                        .members
+                        .iter()
+                        .map(|&m| (handles[m].path, handles[m].axis))
+                        .collect(),
+                );
+            }
 
             let arrow_key_offset = arrow_key_offset(ui, &response);
 
-            // The members drew themselves as idle before they could know the junction was hit.
             if response.dragged() || response.hovered() || response.has_focus() {
                 let color = if response.dragged() {
                     style.separator.color_dragged

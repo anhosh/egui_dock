@@ -17,6 +17,8 @@ mod main_surface;
 mod separator;
 mod window_surface;
 
+pub(super) use separator::Axis;
+
 impl<Tab> DockArea<'_, Tab> {
     /// Shows the docking hierarchy inside a [`Ui`].
     pub fn show_inside(mut self, ui: &mut Ui, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
@@ -313,7 +315,7 @@ impl<Tab> DockArea<'_, Tab> {
         }
 
         if self.draggable_separator_junctions {
-            self.show_separator_junctions(ui, &separators, fade_style);
+            self.show_separator_junctions(ui, state, surf_index, &separators, fade_style);
         }
     }
 

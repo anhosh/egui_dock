@@ -1,7 +1,8 @@
 use egui::{Context, Id, Pos2};
 
 use super::drag_and_drop::{DragData, DragDropState, HoverData};
-use crate::{Style, SurfaceIndex};
+use super::show::Axis;
+use crate::{NodePath, Style, SurfaceIndex};
 
 #[derive(Clone, Debug, Default)]
 pub(super) struct State {
@@ -9,17 +10,13 @@ pub(super) struct State {
     pub last_hover_pos: Option<Pos2>,
     pub dnd: Option<DragDropState>,
     pub window_fade: Option<(f64, SurfaceIndex)>,
+    pub dragged_junction: Option<Vec<(NodePath, Axis)>>,
 }
 
 impl State {
     #[inline(always)]
     pub(super) fn load(ctx: &Context, id: Id) -> Self {
-        ctx.data_mut(|d| d.get_temp(id)).unwrap_or(Self {
-            drag_start: None,
-            last_hover_pos: None,
-            dnd: None,
-            window_fade: None,
-        })
+        ctx.data_mut(|d| d.get_temp(id)).unwrap_or_default()
     }
 
     #[inline(always)]
@@ -31,6 +28,7 @@ impl State {
         self.dnd = None;
         self.window_fade = None;
         self.drag_start = None;
+        self.dragged_junction = None;
     }
 
     pub(super) fn set_drag_and_drop(
