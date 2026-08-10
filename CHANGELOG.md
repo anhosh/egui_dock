@@ -1,5 +1,15 @@
 # egui_dock changelog
 
+## Unreleased
+
+### Added
+
+- Dragging the junction where two perpendicular separators meet now drags all of them at once.
+  ([#200](https://github.com/anhosh/egui_dock/issues/200))
+- `DockArea::draggable_separator_junctions`: sets whether separator junctions can be dragged.
+- `SeparatorStyle::junction_merge_distance`: maximum distance between two perpendicular separators
+  that could be dragged as one junction.
+
 ## egui_dock 0.21.1 - 2026/08/06
 
 ### Fixed
