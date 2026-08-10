@@ -158,7 +158,12 @@ fn arrow_key_offset(ui: &Ui, response: &Response) -> Option<Vec2> {
     })
 }
 
-fn apply_separator_delta(split: &mut SplitNode, axis: SeparatorAxis, delta: Vec2, style: &SeparatorStyle) {
+fn apply_separator_delta(
+    split: &mut SplitNode,
+    axis: SeparatorAxis,
+    delta: Vec2,
+    style: &SeparatorStyle,
+) {
     let (range, delta) = match axis {
         SeparatorAxis::X => (split.rect.width(), delta.x),
         SeparatorAxis::Y => (split.rect.height(), delta.y),
