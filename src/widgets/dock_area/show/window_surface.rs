@@ -18,15 +18,9 @@ impl<Tab> DockArea<'_, Tab> {
         state: &mut State,
         fade_style: Option<(&Style, f32, SurfaceIndex)>,
     ) {
-        // Construct egui window
         let id = format!("window {surf_index:?}").into();
         let bounds = self.window_bounds.unwrap();
         let open = true;
-        let window = self
-            .dock_state
-            .get_window_state_mut(surf_index)
-            .unwrap()
-            .create_window(id, bounds);
 
         // Calculate fading of the window (if any)
         let (fade_factor, fade_style) = match fade_style {
@@ -39,6 +33,23 @@ impl<Tab> DockArea<'_, Tab> {
             }
             None => (1.0, None),
         };
+
+        // Fade window frame (if necessary)
+        let mut frame = Frame::window(ui.style());
+        if fade_factor != 1.0 {
+            frame.fill = frame.fill.linear_multiply(fade_factor);
+            frame.stroke.color = frame.stroke.color.linear_multiply(fade_factor);
+            frame.shadow.color = frame.shadow.color.linear_multiply(fade_factor);
+        }
+
+        let frame_height = frame.total_margin().sum().y;
+
+        // Construct egui window
+        let window = self
+            .dock_state
+            .get_window_state_mut(surf_index)
+            .unwrap()
+            .create_window(id, bounds, frame_height);
 
         // Get galley of currently selected node as a window title
         let title = {
@@ -66,28 +77,26 @@ impl<Tab> DockArea<'_, Tab> {
             }
         }
 
-        // Fade window frame (if necessary)
-        let mut frame = Frame::window(ui.style());
-        if fade_factor != 1.0 {
-            frame.fill = frame.fill.linear_multiply(fade_factor);
-            frame.stroke.color = frame.stroke.color.linear_multiply(fade_factor);
-            frame.shadow.color = frame.shadow.color.linear_multiply(fade_factor);
-        }
-
-        let tab_bar_height = self.style.as_ref().unwrap().tab_bar.height;
+        let (tab_bar_height, separator_width) = {
+            let style = self.style.as_ref().unwrap();
+            (style.tab_bar.height, style.separator.width)
+        };
         let minimized = self
             .dock_state
             .get_window_state(surf_index)
             .unwrap()
             .is_minimized();
         if minimized {
-            let height = tab_bar_height;
+            let height = tab_bar_height + frame_height;
             window
                 .resizable([true, false])
                 .max_height(height)
                 .min_height(height)
         } else if self.dock_state[surf_index].is_collapsed() {
-            let height = self.dock_state[surf_index].collapsed_leaf_count() as f32 * tab_bar_height;
+            let leaf_count = self.dock_state[surf_index].collapsed_leaf_count() as f32;
+            let height = leaf_count * tab_bar_height
+                + (leaf_count - 1.0).max(0.0) * separator_width
+                + frame_height;
             window
                 .resizable([true, false])
                 .max_height(height)
