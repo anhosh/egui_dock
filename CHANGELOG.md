@@ -11,10 +11,6 @@
   that could be dragged as one junction.
 - `SeparatorStyle::arrow_key_step_distance`: how far a focused separator moves per arrow key press.
 
-### Fixed
-
-- Window heights now account for frame margins, consistent with changes in [emilk/egui#8154](https://github.com/emilk/egui/pull/8154). ([#341](https://github.com/anhosh/egui_dock/issues/341))
-
 ## egui_dock 0.21.1 - 2026/08/06
 
 ### Fixed
@@ -60,30 +56,30 @@
 - Upgraded to egui 0.34. ([#314](https://github.com/anhosh/egui_dock/pull/314))
 - Replaced all `SurfaceIndex`, `NodeIndex`, and `TabIndex` groupings with `NodePath` and `TabPath` in the argument lists
   of the following functions ([#312](https://github.com/anhosh/egui_dock/pull/312)):
-  - `DockState::set_active_tab`,
-  - `DockState::set_focused_node_and_surface`,
-  - `DockState::move_tab`,
-  - `DockState::detach_tab`,
-  - `DockState::remove_tab`,
-  - `DockState::remove_leaf`,
-  - `DockState::split`,
-  - `DockState::focused_leaf`,
-  - `TabViewer::context_menu`,
-  - `TabViewer::on_add`,
-  - `TabViewer::add_popup`.
+    - `DockState::set_active_tab`,
+    - `DockState::set_focused_node_and_surface`,
+    - `DockState::move_tab`,
+    - `DockState::detach_tab`,
+    - `DockState::remove_tab`,
+    - `DockState::remove_leaf`,
+    - `DockState::split`,
+    - `DockState::focused_leaf`,
+    - `TabViewer::context_menu`,
+    - `TabViewer::on_add`,
+    - `TabViewer::add_popup`.
 - Changed the return type of some methods ([#312](https://github.com/anhosh/egui_dock/pull/312)):
-  - `DockState::iter_all_nodes` now returns `impl Iterator<Item = (NodePath, &Node<Tab>)>`,
-  - `DockState::iter_all_nodes_mut` now returns `impl Iterator<Item = (NodePath, &mut Node<Tab>)>`,
-  - `DockState::iter_all_tabs` now returns `impl Iterator<Item = (TabPath, &Tab)>`,
-  - `DockState::iter_all_tabs_mut` now returns `impl Iterator<Item = (TabPath, &mut Tab)>`,
-  - `DockState::iter_leaves` now returns `impl Iterator<Item = (NodePath, &LeafNode<Tab>)>`,
-  - `DockState::iter_leaves_mut` now returns `impl Iterator<Item = (NodePath, &mut LeafNode<Tab>)>`,
-  - `DockState::find_tab_from` now returns `Option<TabPath>`,
-  - `DockState::find_tab` now returns `Option<TabPath>`,
-  - `Surface::iter_all_tabs` now returns `impl Iterator<Item = ((NodeIndex, TabIndex), &Tab)>`,
-  - `Surface::iter_all_tabs_mut` now returns `impl Iterator<Item = ((NodeIndex, TabIndex), &mut Tab)>`,
-  - `Tree::set_active_tab` now returns `Result<()>` (`Err` if any of the indices are invalid),
-  - `LeafNode::::set_active_tab` now returns `Result<()>` (`Err` if the tab index is invalid).
+    - `DockState::iter_all_nodes` now returns `impl Iterator<Item = (NodePath, &Node<Tab>)>`,
+    - `DockState::iter_all_nodes_mut` now returns `impl Iterator<Item = (NodePath, &mut Node<Tab>)>`,
+    - `DockState::iter_all_tabs` now returns `impl Iterator<Item = (TabPath, &Tab)>`,
+    - `DockState::iter_all_tabs_mut` now returns `impl Iterator<Item = (TabPath, &mut Tab)>`,
+    - `DockState::iter_leaves` now returns `impl Iterator<Item = (NodePath, &LeafNode<Tab>)>`,
+    - `DockState::iter_leaves_mut` now returns `impl Iterator<Item = (NodePath, &mut LeafNode<Tab>)>`,
+    - `DockState::find_tab_from` now returns `Option<TabPath>`,
+    - `DockState::find_tab` now returns `Option<TabPath>`,
+    - `Surface::iter_all_tabs` now returns `impl Iterator<Item = ((NodeIndex, TabIndex), &Tab)>`,
+    - `Surface::iter_all_tabs_mut` now returns `impl Iterator<Item = ((NodeIndex, TabIndex), &mut Tab)>`,
+    - `Tree::set_active_tab` now returns `Result<()>` (`Err` if any of the indices are invalid),
+    - `LeafNode::::set_active_tab` now returns `Result<()>` (`Err` if the tab index is invalid).
 - `impl From<(SurfaceIndex, NodeIndex, TabInsert)> for TabDestination` was replaced with
   `impl From<(NodePath, TabInsert)> for TabDestination`. ([#312](https://github.com/anhosh/egui_dock/pull/312))
 
@@ -94,12 +90,12 @@
 - Indexing `LeafNode` with `TabIndex`. ([#311](https://github.com/anhosh/egui_dock/pull/311/))
 - Indexing `DockState` using `NodePath`. ([#312](https://github.com/anhosh/egui_dock/pull/312))
 - New methods ([#312](https://github.com/anhosh/egui_dock/pull/312)):
-  - `DockState::node(_mut)`: returns a `Node` at a given `NodePath`,
-  - `DockState::leaf(_mut)`: returns a `LeafNode` at a given `NodePath`,
-  - `DockState::iter_surfaces(_mut)_indexed`: returns a `Surface` iterator paired with its `SurfaceIndex`,
-  - `Surface::iter_nodes(_mut)_indexed`: returns a `Node<Tab>` iterator paired with its `NodeIndex`,
-  - `Tree::leaf(_mut)`: returns a `Result<&LeafNode<Tab>>` at a given `NodeIndex`,
-  - `Node::iter_tabs(_mut)_indexed`: returns a `Tab` iterator paried with its `TabIndex`.
+    - `DockState::node(_mut)`: returns a `Node` at a given `NodePath`,
+    - `DockState::leaf(_mut)`: returns a `LeafNode` at a given `NodePath`,
+    - `DockState::iter_surfaces(_mut)_indexed`: returns a `Surface` iterator paired with its `SurfaceIndex`,
+    - `Surface::iter_nodes(_mut)_indexed`: returns a `Node<Tab>` iterator paired with its `NodeIndex`,
+    - `Tree::leaf(_mut)`: returns a `Result<&LeafNode<Tab>>` at a given `NodeIndex`,
+    - `Node::iter_tabs(_mut)_indexed`: returns a `Tab` iterator paried with its `TabIndex`.
 
 ### Fixed
 
@@ -126,44 +122,44 @@
 ### Breaking changes
 
 - From ([#272](https://github.com/Adanos020/egui_dock/pull/272)):
-  - `Node`s underlying data has been split up into the `LeafNode` and `SplitNode` types, meaning that any match
-    statements carried out on a node now needs to account for this.
+    - `Node`s underlying data has been split up into the `LeafNode` and `SplitNode` types, meaning that any match
+      statements carried out on a node now needs to account for this.
 - Upgraded to egui 0.32 ([#280](https://github.com/Adanos020/egui_dock/pull/280/))
 
 ### Changed
 
 - From ([#272](https://github.com/Adanos020/egui_dock/pull/272)):
-  - `Tree::set_active_tab` now takes `impl Into<NodeIndex>` and `impl Into<TabIndex>` to make use slightly easier.
-  - `Surface` now implements `Index<NodeIndex>`/`IndexMut<NodeIndex>` which tries to access the surfaces node tree and
-    the node at the index. This will always panic when used on an empty surface as they do not have a node tree nor
-    nodes.
+    - `Tree::set_active_tab` now takes `impl Into<NodeIndex>` and `impl Into<TabIndex>` to make use slightly easier.
+    - `Surface` now implements `Index<NodeIndex>`/`IndexMut<NodeIndex>` which tries to access the surfaces node tree and
+      the node at the index. This will always panic when used on an empty surface as they do not have a node tree nor
+      nodes.
 
 ### Added
 
 - From ([#272](https://github.com/Adanos020/egui_dock/pull/272)):
-  - `DockState::iter_leaves` and `DockState::iter_leaves_mut` - can be used to more efficiently iterate over leaf
-    nodes without needing to "unwrap" them from the `Node` enum.
-  - `DockState::find_tab_from`/`Tree::find_tab_from` - a more generalized version of the existing `find_tab` methods
-    which doesn't require the tab type to implement `PartialEq`.
-  - New type `LeafNode` which contains leaf node data and has the following methods:
-    - `new`,
-    - `set_active_tab`,
-    - `set_rect`,
-    - `rect`,
-    - `len`,
-    - `is_empty`,
-    - `tabs`,
-    - `tabs_mut`,
-    - `append_tab`,
-    - `insert_tab`,
-    - `remove_tab`,
-    - `retain_tabs`,
-    - `active_focused`.
-  - New type `SplitNode` which contains data about node splits and has the following methods:
-    - `new`,
-    - `set_rect`,
-    - `rect`.
-  - `Node::get_leaf`/`Node::get_leaf_mut` - an alternative way of trying to access leaf data in a node.
+    - `DockState::iter_leaves` and `DockState::iter_leaves_mut` - can be used to more efficiently iterate over leaf
+      nodes without needing to "unwrap" them from the `Node` enum.
+    - `DockState::find_tab_from`/`Tree::find_tab_from` - a more generalized version of the existing `find_tab` methods
+      which doesn't require the tab type to implement `PartialEq`.
+    - New type `LeafNode` which contains leaf node data and has the following methods:
+        * `new`,
+        * `set_active_tab`,
+        * `set_rect`,
+        * `rect`,
+        * `len`,
+        * `is_empty`,
+        * `tabs`,
+        * `tabs_mut`,
+        * `append_tab`,
+        * `insert_tab`,
+        * `remove_tab`,
+        * `retain_tabs`,
+        * `active_focused`.
+    - New type `SplitNode` which contains data about node splits and has the following methods:
+        * `new`,
+        * `set_rect`,
+        * `rect`.
+    - `Node::get_leaf`/`Node::get_leaf_mut` - an alternative way of trying to access leaf data in a node.
 - `TabBarStyle` now has two new fields: `inner_margin` and
   `spacing`. ([#270](https://github.com/Adanos020/egui_dock/pull/270))
 
@@ -172,8 +168,8 @@
 - `DockState::retain_tabs` no longer deletes the main surface if it ends up empty
   ([#277](https://github.com/Adanos020/egui_dock/pull/277)).
 - From [#275](https://github.com/Adanos020/egui_dock/pull/275):
-  - `{DockState,Tree}::remove_leaf` now removes unused empty node`s at the back of the tree.
-  - `{DockState,Tree}::retain_tabs` no longer deletes leaf nodes it shouldn't delete.
+    - `{DockState,Tree}::remove_leaf` now removes unused empty node`s at the back of the tree.
+    - `{DockState,Tree}::retain_tabs` no longer deletes leaf nodes it shouldn't delete.
 
 ## egui_dock 0.16.0 - 2025-02-07
 
@@ -186,73 +182,73 @@
 ### Changed
 
 - From ([#237](https://github.com/Adanos020/egui_dock/pull/237)):
-  - Each leaf can now be collapsed / closed individually. They are introduced as additional tab bar controls.
-  - Undocked windows are now more compact. The original undocked window controls are now accessible as "secondary
-    buttons" from the tab bar.
-    - By default, the secondary buttons are activated from primary buttons either by holding the <kbd>Shift</kbd>
-      key while clicking on them, or from a context menu by right-clicking them.
-  - A number of tooltip hints are on by default as guides to the new behavior, but they can be disabled.
-  - There has been an overhaul to the internal codebase to support the new features.
+    - Each leaf can now be collapsed / closed individually. They are introduced as additional tab bar controls.
+    - Undocked windows are now more compact. The original undocked window controls are now accessible as "secondary
+      buttons" from the tab bar.
+        - By default, the secondary buttons are activated from primary buttons either by holding the <kbd>Shift</kbd>
+          key while clicking on them, or from a context menu by right-clicking them.
+    - A number of tooltip hints are on by default as guides to the new behavior, but they can be disabled.
+    - There has been an overhaul to the internal codebase to support the new features.
 
 ### Added
 
 - From ([#237](https://github.com/Adanos020/egui_dock/pull/237)):
-  - `DockArea::show_leaf_close_all_buttons` – shows a close all button which closes all open tabs in a leaf.
-  - `DockArea::show_leaf_collapse_buttons` – shows a collapsing button which collapses a leaf (no longer collapsing a
-    window).
-  - `DockArea::show_secondary_button_hint` – sets whether tooltip hints are shown for secondary buttons on tab bars.
-  - `DockArea::show_leaf_collapse_buttons` – shows a collapsing button which collapses a leaf (no longer collapsing a
-    window).
-  - `DockArea::secondary_button_on_modifier` – sets whether the secondary buttons on tab bars are activated by the
-    modifier key.
-  - `DockArea::secondary_button_context_menu` – sets whether the secondary buttons on tab bars are activated from a
-    context value by right-clicking primary buttons.
-  - Added the following translations:
-    - `LeafTranslations::close_all_button`
-    - `LeafTranslations::close_all_button_menu_hint`
-    - `LeafTranslations::close_all_button_modifier_hint`
-    - `LeafTranslations::close_all_button_modifier_menu_hint`
-    - `LeafTranslations::close_all_button_disabled_tooltip`
-    - `LeafTranslations::minimize_button`
-    - `LeafTranslations::minimize_button_menu_hint`
-    - `LeafTranslations::minimize_button_modifier_hint`
-    - `LeafTranslations::minimize_button_modifier_menu_hint`
-  - `Node::is_collapsed` – returns whether the `Node` is collapsed.
-  - `Node::collapsed_leaf_count` – returns the number of collapsed layers of leaf subnodes.
-  - `Node::set_collapsed` – set the collapsing state of the `Node`.
-  - `Node::set_collapsed_leaf_count` – sets the number of collapsed layers of leaf subnodes.
-  - `WindowState::minimized` field – records whether a window is minimized.
-  - `WindowState::expanded_height` field – records the height of the window before it was fully collapsed.
-  - Added style configuration for the two buttons:
-    - `ButtonsStyle::{close_all_tabs, collapse_tabs, minimize_window}_color`
-    - `ButtonsStyle::{close_all_tabs, collapse_tabs, minimize_window}_active_color`
-    - `ButtonsStyle::{close_all_tabs, collapse_tabs, minimize_window}_bg_fill`
-    - `ButtonsStyle::{close_all_tabs, collapse_tabs, minimize_window}_border_color`
-    - `ButtonsStyle::close_all_tabs_disabled_color`
-    - `Style::TAB_CLOSE_ALL_BUTTON_SIZE`
-    - `Style::TAB_CLOSE_ALL_SIZE`
-    - `Style::TAB_COLLAPSE_BUTTON_SIZE`
-    - `Style::TAB_COLLAPSE_ARROW_SIZE`
-    - `Style::TAB_EXPAND_BUTTON_SIZE`
-    - `Style::TAB_EXPAND_ARROW_SIZE`
+    - `DockArea::show_leaf_close_all_buttons` – shows a close all button which closes all open tabs in a leaf.
+    - `DockArea::show_leaf_collapse_buttons` – shows a collapsing button which collapses a leaf (no longer collapsing a
+      window).
+    - `DockArea::show_secondary_button_hint` – sets whether tooltip hints are shown for secondary buttons on tab bars.
+    - `DockArea::show_leaf_collapse_buttons` – shows a collapsing button which collapses a leaf (no longer collapsing a
+      window).
+    - `DockArea::secondary_button_on_modifier` – sets whether the secondary buttons on tab bars are activated by the
+      modifier key.
+    - `DockArea::secondary_button_context_menu` – sets whether the secondary buttons on tab bars are activated from a
+      context value by right-clicking primary buttons.
+    - Added the following translations:
+        - `LeafTranslations::close_all_button`
+        - `LeafTranslations::close_all_button_menu_hint`
+        - `LeafTranslations::close_all_button_modifier_hint`
+        - `LeafTranslations::close_all_button_modifier_menu_hint`
+        - `LeafTranslations::close_all_button_disabled_tooltip`
+        - `LeafTranslations::minimize_button`
+        - `LeafTranslations::minimize_button_menu_hint`
+        - `LeafTranslations::minimize_button_modifier_hint`
+        - `LeafTranslations::minimize_button_modifier_menu_hint`
+    - `Node::is_collapsed` – returns whether the `Node` is collapsed.
+    - `Node::collapsed_leaf_count` – returns the number of collapsed layers of leaf subnodes.
+    - `Node::set_collapsed` – set the collapsing state of the `Node`.
+    - `Node::set_collapsed_leaf_count` – sets the number of collapsed layers of leaf subnodes.
+    - `WindowState::minimized` field – records whether a window is minimized.
+    - `WindowState::expanded_height` field – records the height of the window before it was fully collapsed.
+    - Added style configuration for the two buttons:
+        - `ButtonsStyle::{close_all_tabs, collapse_tabs, minimize_window}_color`
+        - `ButtonsStyle::{close_all_tabs, collapse_tabs, minimize_window}_active_color`
+        - `ButtonsStyle::{close_all_tabs, collapse_tabs, minimize_window}_bg_fill`
+        - `ButtonsStyle::{close_all_tabs, collapse_tabs, minimize_window}_border_color`
+        - `ButtonsStyle::close_all_tabs_disabled_color`
+        - `Style::TAB_CLOSE_ALL_BUTTON_SIZE`
+        - `Style::TAB_CLOSE_ALL_SIZE`
+        - `Style::TAB_COLLAPSE_BUTTON_SIZE`
+        - `Style::TAB_COLLAPSE_ARROW_SIZE`
+        - `Style::TAB_EXPAND_BUTTON_SIZE`
+        - `Style::TAB_EXPAND_ARROW_SIZE`
 
 ### Breaking changes
 
 - From ([#237](https://github.com/Adanos020/egui_dock/pull/237)):
-  - Renamed `Translations::WindowTranslations` to `Translations::LeafTranslations`.
-  - Renamed `WindowTranslations::close_button_tooltip` to `LeafTranslations::close_button_disabled_tooltip`.
-  - `Translations::LeafTranslations` now requires more fields to be constructed (see **Added** section).
+    - Renamed `Translations::WindowTranslations` to `Translations::LeafTranslations`.
+    - Renamed `WindowTranslations::close_button_tooltip` to `LeafTranslations::close_button_disabled_tooltip`.
+    - `Translations::LeafTranslations` now requires more fields to be constructed (see **Added** section).
 - Upgraded to egui 0.30.
 
 ### Deprecated
 
 - From ([#237](https://github.com/Adanos020/egui_dock/pull/237)):
-  - `DockArea::show_window_close_buttons` – no longer has any effect; consider using
-    `DockArea::show_leaf_close_all_buttons`
-    instead.
-  - `DockArea::show_window_collapse_buttons` – no longer has any effect; consider using
-    `DockArea::show_leaf_collapse_buttons`
-    instead.
+    - `DockArea::show_window_close_buttons` – no longer has any effect; consider using
+      `DockArea::show_leaf_close_all_buttons`
+      instead.
+    - `DockArea::show_window_collapse_buttons` – no longer has any effect; consider using
+      `DockArea::show_leaf_collapse_buttons`
+      instead.
 
 ## 0.14.0 - 2024-09-02
 
@@ -334,11 +330,11 @@ From [#225](https://github.com/Adanos020/egui_dock/pull/225):
 ### Added
 
 - From ([#211](https://github.com/Adanos020/egui_dock/pull/211)):
-  - Tabs, the close tab buttons and the add tab buttons are now focusable with the keyboard and interactable with the
-    enter key and space bar.
-  - Separators are now focusable with the keyboard and movable using the arrow keys while control or shift is held.
-  - `TabStyle::active_with_kb_focus`, `TabStyle::inactive_with_kb_focus` and `TabStyle::focused_with_kb_focus` for
-    style of tabs that are focused with the keyboard.
+    - Tabs, the close tab buttons and the add tab buttons are now focusable with the keyboard and interactable with the
+      enter key and space bar.
+    - Separators are now focusable with the keyboard and movable using the arrow keys while control or shift is held.
+    - `TabStyle::active_with_kb_focus`, `TabStyle::inactive_with_kb_focus` and `TabStyle::focused_with_kb_focus` for
+      style of tabs that are focused with the keyboard.
 - Missing translation for the tooltip showing when you hover on a grayed out window close button.
   ([#216](https://github.com/Adanos020/egui_dock/pull/216))
 
@@ -455,38 +451,38 @@ provide a guide of how to use the library.
 ### Added
 
 - From [#139](https://github.com/Adanos020/egui_dock/pull/139):
-  - `Style::main_surface_border_rounding` for the rounding of the dock area border.
-  - `TabStyle::active` for the active style of a tab.
-  - `TabStyle::inactive` for the inactive style of a tab.
-  - `TabStyle::focused` for the focused style of a tab.
-  - `TabStyle::hovered` for the hovered style of a tab.
-  - `TabStyle::tab_body` for styling the body of the tab including background color, stroke color, rounding and inner
-    margin.
-  - `TabStyle::minimum_width` to set the minimum width of the tab.
-  - `TabInteractionStyle` to style the active/inactive/focused/hovered states of a tab.
+    - `Style::main_surface_border_rounding` for the rounding of the dock area border.
+    - `TabStyle::active` for the active style of a tab.
+    - `TabStyle::inactive` for the inactive style of a tab.
+    - `TabStyle::focused` for the focused style of a tab.
+    - `TabStyle::hovered` for the hovered style of a tab.
+    - `TabStyle::tab_body` for styling the body of the tab including background color, stroke color, rounding and inner
+      margin.
+    - `TabStyle::minimum_width` to set the minimum width of the tab.
+    - `TabInteractionStyle` to style the active/inactive/focused/hovered states of a tab.
 - `AllowedSplits` enum which lets you choose in which directions a `DockArea` can be split.
   ([#145](https://github.com/Adanos020/egui_dock/pull/145))
 - From [#149](https://github.com/Adanos020/egui_dock/pull/149):
-  - `DockState<Tab>` containing the entire state of the tab hierarchies stored in a collection of `Surfaces`.
-  - `Surface<Tab>` enum which represents an area (e.g. a window) with its own `Tree<Tab>`.
-  - `SurfaceIndex` to identify a `Surface` stored in the `DockState`.
-  - `Split::is_tob_bottom` and `Split::is_left_right`.
-  - `TabInsert` which replaces current `TabDestination` (see breaking changes).
-  - `impl From<(SurfaceIndex, NodeIndex, TabInsert)> for TabDestination`.
-  - `impl From<SurfaceIndex> for TabDestination`.
-  - `TabDestination::is_window` (see breaking changes).
-  - `Tree::root_node` and `Tree::root_node_mut`.
-  - `Node::rect` returning the `Rect` occupied by the node.
-  - `Node::tabs` and `Node::tabs_mut` returning an optional slice of tabs if the node is a leaf.
-  - `WindowState` representing the current state of a `Surface::Window` and allowing you to manipulate the window.
-  - `OverlayStyle` (stored as `Style::overlay`) and `OverlayFeel`: they specify the look and feel of the drag-and-drop
-    overlay.
-  - `OverlayType` letting you choose if the overlay should be the new icon buttons or the old highlighted rectangles.
-  - `LeafHighlighting` specifying how a currently hovered leaf should be highlighted.
-  - `DockArea::window_bounds` setting the area which windows are constrained by.
-  - `DockArea::show_window_close_buttons` setting determining if windows should have a close button or not.
-  - `DockArea::show_window_collapse_buttons` setting determining if windows should have a collapse button or not.
-  - `TabViewer::allowed_in_windows` specifying if a given tab can be shown in a window.
+    - `DockState<Tab>` containing the entire state of the tab hierarchies stored in a collection of `Surfaces`.
+    - `Surface<Tab>` enum which represents an area (e.g. a window) with its own `Tree<Tab>`.
+    - `SurfaceIndex` to identify a `Surface` stored in the `DockState`.
+    - `Split::is_tob_bottom` and `Split::is_left_right`.
+    - `TabInsert` which replaces current `TabDestination` (see breaking changes).
+    - `impl From<(SurfaceIndex, NodeIndex, TabInsert)> for TabDestination`.
+    - `impl From<SurfaceIndex> for TabDestination`.
+    - `TabDestination::is_window` (see breaking changes).
+    - `Tree::root_node` and `Tree::root_node_mut`.
+    - `Node::rect` returning the `Rect` occupied by the node.
+    - `Node::tabs` and `Node::tabs_mut` returning an optional slice of tabs if the node is a leaf.
+    - `WindowState` representing the current state of a `Surface::Window` and allowing you to manipulate the window.
+    - `OverlayStyle` (stored as `Style::overlay`) and `OverlayFeel`: they specify the look and feel of the drag-and-drop
+      overlay.
+    - `OverlayType` letting you choose if the overlay should be the new icon buttons or the old highlighted rectangles.
+    - `LeafHighlighting` specifying how a currently hovered leaf should be highlighted.
+    - `DockArea::window_bounds` setting the area which windows are constrained by.
+    - `DockArea::show_window_close_buttons` setting determining if windows should have a close button or not.
+    - `DockArea::show_window_collapse_buttons` setting determining if windows should have a collapse button or not.
+    - `TabViewer::allowed_in_windows` specifying if a given tab can be shown in a window.
 - `TabViewer::closable` lets individual tabs be closable or not.
   ([#150](https://github.com/Adanos020/egui_dock/pull/150))
 - `TabViewer::scroll_bars` specifying if horizontal and vertical scrolling is enabled for given tab – replaces
@@ -497,24 +493,24 @@ provide a guide of how to use the library.
 ### Breaking changes
 
 - From [#139](https://github.com/Adanos020/egui_dock/pull/139):
-  - Moved `TabStyle::inner_margin` to `TabBodyStyle::inner_margin`.
-  - Moved `TabStyle::fill_tab_bar` to `TabBarStyle::fill_tab_bar`.
-  - Moved `TabStyle::outline_color` to `TabInteractionStyle::outline_color`.
-  - Moved `TabStyle::rounding` to `TabInteractionStyle::rounding`.
-  - Moved `TabStyle::bg_fill` to `TabInteractionStyle::bg_fill`.
-  - Moved `TabStyle::text_color_unfocused` to `TabStyle::inactive.text_color`.
-  - Moved `TabStyle::text_color_active_focused` to `TabStyle::focused.text_color`.
-  - Moved `TabStyle::text_color_active_unfocused` to `TabStyle::active.text_color`.
-  - Renamed `Style::tabs` to `Style::tab`.
-  - Removed `TabStyle::text_color_focused`. This style was practically never reachable.
+    - Moved `TabStyle::inner_margin` to `TabBodyStyle::inner_margin`.
+    - Moved `TabStyle::fill_tab_bar` to `TabBarStyle::fill_tab_bar`.
+    - Moved `TabStyle::outline_color` to `TabInteractionStyle::outline_color`.
+    - Moved `TabStyle::rounding` to `TabInteractionStyle::rounding`.
+    - Moved `TabStyle::bg_fill` to `TabInteractionStyle::bg_fill`.
+    - Moved `TabStyle::text_color_unfocused` to `TabStyle::inactive.text_color`.
+    - Moved `TabStyle::text_color_active_focused` to `TabStyle::focused.text_color`.
+    - Moved `TabStyle::text_color_active_unfocused` to `TabStyle::active.text_color`.
+    - Renamed `Style::tabs` to `Style::tab`.
+    - Removed `TabStyle::text_color_focused`. This style was practically never reachable.
 - From [#149](https://github.com/Adanos020/egui_dock/pull/149):
-  - `TabDestination` now specifies if a tab will be moved to a `Window`, a `Node`, or an `EmptySurface`. Its original
-    purpose is now served by `TabInsert`.
-  - `Tree::split` now panics if supplied `fraction` is not in range 0..=1.
-  - Moved `Tree::move_tab` to `DockState::move_tab`.
-  - Renamed `Style::border` to `Style::main_surface_border_stroke`.
-  - Moved `Style::selection_color` to `OverlayStyle::selection_color`.
-  - `DockArea::new` now takes in a `DockState` instead of a `Tree`.
+    - `TabDestination` now specifies if a tab will be moved to a `Window`, a `Node`, or an `EmptySurface`. Its original
+      purpose is now served by `TabInsert`.
+    - `Tree::split` now panics if supplied `fraction` is not in range 0..=1.
+    - Moved `Tree::move_tab` to `DockState::move_tab`.
+    - Renamed `Style::border` to `Style::main_surface_border_stroke`.
+    - Moved `Style::selection_color` to `OverlayStyle::selection_color`.
+    - `DockArea::new` now takes in a `DockState` instead of a `Tree`.
 - Removed `DockArea::scroll_area_in_tabs` – override `TabViewer::scroll_bars`
   instead. ([#160](https://github.com/Adanos020/egui_dock/pull/160))
 - Methods `TabViewer::{context_menu,on_add,add_popup}` now take in an additional `SurfaceIndex`
@@ -605,13 +601,13 @@ Removed
   ([#115](https://github.com/Adanos020/egui_dock/pull/107))
 - `Tree::remove_leaf` method that deletes a selected leaf node ([#115](https://github.com/Adanos020/egui_dock/pull/107))
 - New methods in `DockArea` ([#115](https://github.com/Adanos020/egui_dock/pull/115))
-  - `show_add_popup`
-  - `show_add_buttons`
-  - `show_close_buttons`
-  - `draggable_tabs`
-  - `tab_context_menus`
-  - `scroll_area_in_tabs`
-  - `show_tab_name_on_hover`
+    - `show_add_popup`
+    - `show_add_buttons`
+    - `show_close_buttons`
+    - `draggable_tabs`
+    - `tab_context_menus`
+    - `scroll_area_in_tabs`
+    - `show_tab_name_on_hover`
 - Make tabs scrollable when they overflow ([#116](https://github.com/Adanos020/egui_dock/pull/116))
 - `TabViewer::id` method that allows specifying a custom id for each tab
   ([#121](https://github.com/Adanos020/egui_dock/pull/121))
@@ -622,18 +618,18 @@ Removed
   ([#115](https://github.com/Adanos020/egui_dock/pull/107))
 - Removed `show_close_buttons` from `StyleBuilder` ([#115](https://github.com/Adanos020/egui_dock/pull/115))
 - Moved the following fields from `Style` to `DockArea` ([#115](https://github.com/Adanos020/egui_dock/pull/115))
-  - `show_add_popup`
-  - `show_add_buttons`
-  - `show_close_buttons`
-  - `tabs_are_draggable` (renamed to `draggable_tabs`)
-  - `show_context_menu` (renamed to `tab_context_menus`)
-  - `tab_include_scrollarea` (renamed to `scroll_area_in_tabs`)
-  - `tab_hover_name` (renamed to `show_tab_name_on_hover`)
+    - `show_add_popup`
+    - `show_add_buttons`
+    - `show_close_buttons`
+    - `tabs_are_draggable` (renamed to `draggable_tabs`)
+    - `show_context_menu` (renamed to `tab_context_menus`)
+    - `tab_include_scrollarea` (renamed to `scroll_area_in_tabs`)
+    - `tab_hover_name` (renamed to `show_tab_name_on_hover`)
 - `Style` is now split up into smaller structs for maintainability and consistence with `egui::Style`
   ([#115](https://github.com/Adanos020/egui_dock/pull/115))
 
 | Old names and locations                         | New names and locations                          |
-| ----------------------------------------------- | ------------------------------------------------ |
+|-------------------------------------------------|--------------------------------------------------|
 | `Style::border_color` and `Style::border_width` | `Style::border` (which is now an `egui::Stroke`) |
 | `Style::separator_width`                        | `Separator::width`                               |
 | `Style::separator_extra`                        | `Separator::extra`                               |
