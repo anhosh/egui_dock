@@ -1,5 +1,8 @@
 use duplicate::duplicate;
-use egui::{CornerRadius, CursorIcon, EventFilter, Key, Rect, Response, Sense, Ui, Vec2, vec2};
+use egui::{
+    CornerRadius, CursorIcon, EventFilter, Key, Rect, Response, Sense, Ui, Vec2, WidgetInfo,
+    WidgetType, accesskit, vec2,
+};
 use paste::paste;
 
 use crate::{
@@ -201,9 +204,9 @@ impl<Tab> DockArea<'_, Tab> {
 
         duplicate! {
             [
-                orientation   dim_point  dim_size  sep_axis;
-                [Horizontal]  [x]        [width]   [X];
-                [Vertical]    [y]        [height]  [Y];
+                orientation   dim_point  dim_size  sep_axis  ak_orientation;
+                [Horizontal]  [x]        [width]   [X]       [Vertical];
+                [Vertical]    [y]        [height]  [Y]       [Horizontal];
             ]
             if let Node::orientation(split) = &mut self.dock_state[path.surface][path.node] {
                 let rect = split.rect;
@@ -219,6 +222,8 @@ impl<Tab> DockArea<'_, Tab> {
 
                 let response = ui.allocate_rect(interact_rect, Sense::click_and_drag())
                     .on_hover_and_drag_cursor(paste!{ CursorIcon::[<Resize orientation>]});
+
+                response.widget_info(|| WidgetInfo::new(WidgetType::ResizeHandle));
 
                 let arrow_key_offset = arrow_key_offset(ui, &response, style.separator.arrow_key_step_distance);
 
@@ -254,12 +259,42 @@ impl<Tab> DockArea<'_, Tab> {
                 // Update 'fraction' interaction after drawing separator,
                 // otherwise it may overlap on other separator / bodies when
                 // shrunk fast.
-                let delta = arrow_key_offset.unwrap_or(response.drag_delta());
+                let ak_steps = ui.input(|input| {
+                    input.num_accesskit_action_requests(response.id, accesskit::Action::Increment) as f32
+                        - input.num_accesskit_action_requests(response.id, accesskit::Action::Decrement) as f32
+                });
+                let ak_set_value = ui.input(|input| {
+                    input
+                        .accesskit_action_requests(response.id, accesskit::Action::SetValue)
+                        .find_map(|request| match request.data {
+                            Some(accesskit::ActionData::NumericValue(value)) => Some(value as f32),
+                            _ => None,
+                        })
+                });
+                let mut delta = arrow_key_offset.unwrap_or(response.drag_delta());
+                delta.dim_point += ak_steps * style.separator.arrow_key_step_distance;
+                if let Some(value) = ak_set_value {
+                    delta.dim_point += (value.clamp(0.0, 1.0) - split.fraction) * rect.dim_size();
+                }
                 apply_separator_delta(split, SeparatorAxis::sep_axis, delta, &style.separator);
 
                 if response.double_clicked() {
                     split.fraction = 0.5;
                 }
+
+                // Allow assistive technologies to adjust the separator fraction.
+                let fraction = split.fraction;
+                let step = style.separator.arrow_key_step_distance / rect.dim_size().max(1.0);
+                ui.ctx().accesskit_node_builder(response.id, |node| {
+                    node.set_orientation(accesskit::Orientation::ak_orientation);
+                    node.set_numeric_value(fraction.into());
+                    node.set_min_numeric_value(0.0);
+                    node.set_max_numeric_value(1.0);
+                    node.set_numeric_value_step(step.into());
+                    node.add_action(accesskit::Action::Increment);
+                    node.add_action(accesskit::Action::Decrement);
+                    node.add_action(accesskit::Action::SetValue);
+                });
             }
         }
 
@@ -300,9 +335,15 @@ impl<Tab> DockArea<'_, Tab> {
                 junction.members.iter().map(|&m| handles[m].path).collect();
             paths.sort_unstable_by_key(|path| (path.surface.0, path.node.0));
             let id = self.id.with("separator_junction").with(&paths);
+
+            // Junctions should sense click and drags but not focus.
+            // NOTE: don't use `Sense::click_and_drag()` here because it sets `Sense::FOCUSABLE` as well.
             let response = ui
-                .interact(interact_rect, id, Sense::click_and_drag())
+                .interact(interact_rect, id, Sense::CLICK | Sense::DRAG)
                 .on_hover_and_drag_cursor(CursorIcon::Move);
+            response.widget_info(|| WidgetInfo::new(WidgetType::ResizeHandle));
+            ui.ctx()
+                .accesskit_node_builder(response.id, |node| node.set_hidden());
 
             if response.drag_started() {
                 state.dragged_junction = Some(

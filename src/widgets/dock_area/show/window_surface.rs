@@ -1,6 +1,6 @@
 use egui::{
     Align, Color32, CornerRadius, CursorIcon, Frame, Layout, Rect, Response, RichText, Sense,
-    Shape, Stroke, Ui, UiBuilder, Vec2, WidgetText, vec2,
+    Shape, Stroke, Ui, UiBuilder, Vec2, WidgetInfo, WidgetText, WidgetType, vec2,
 };
 
 use crate::{
@@ -179,6 +179,17 @@ impl<Tab> DockArea<'_, Tab> {
         let (rect, mut response) = ui.allocate_exact_size(ui.available_size(), Sense::click());
 
         response = response.on_hover_cursor(CursorIcon::PointingHand);
+        response.widget_info(|| {
+            WidgetInfo::labeled(
+                WidgetType::Button,
+                ui.is_enabled(),
+                &self
+                    .dock_state
+                    .translations
+                    .accessibility
+                    .expand_window_button,
+            )
+        });
 
         let style = fade_style.unwrap_or_else(|| self.style.as_ref().unwrap());
         let color = if response.hovered() || response.has_focus() {
