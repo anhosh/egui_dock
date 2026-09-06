@@ -248,11 +248,11 @@
 //! dock_state.translations.leaf.minimize_button_modifier_hint = "修飾キー（デフォルトではShift）を押すと、このウィンドウが最小化されます".to_string();
 //! dock_state.translations.leaf.minimize_button_modifier_menu_hint = "修飾キー（デフォルトではShift）を押すか、右クリックしてこのウィンドウを最小化する".to_string();
 //! dock_state.translations.accessibility.close_button = "タブを閉じる".to_string();
-//! dock_state.translations.accessibility.add_button = "タブを追加する".to_string();
+//! dock_state.translations.accessibility.add_button = "タブを追加".to_string();
 //! dock_state.translations.accessibility.close_all_button = "すべてのタブを閉じる".to_string();
 //! dock_state.translations.accessibility.collapse_button = "ノードを折りたたむ".to_string();
-//! dock_state.translations.accessibility.expand_button = "ノードを展開する".to_string();
-//! dock_state.translations.accessibility.expand_window_button = "ウィンドウを展開する".to_string();
+//! dock_state.translations.accessibility.expand_button = "ノードを展開".to_string();
+//! dock_state.translations.accessibility.expand_window_button = "ウィンドウを展開".to_string();
 //! ```
 
 #![warn(missing_docs)]
