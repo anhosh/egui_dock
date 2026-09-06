@@ -337,7 +337,7 @@ impl<Tab> DockArea<'_, Tab> {
             let id = self.id.with("separator_junction").with(&paths);
 
             // Junctions should sense click and drags but not focus.
-            // NOTE: don't use `Sense::click_and_drag()` here because it sets `Self::FOCUSABLE` as well.
+            // NOTE: don't use `Sense::click_and_drag()` here because it sets `Sense::FOCUSABLE` as well.
             let response = ui
                 .interact(interact_rect, id, Sense::CLICK | Sense::DRAG)
                 .on_hover_and_drag_cursor(CursorIcon::Move);
