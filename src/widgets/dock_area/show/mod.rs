@@ -364,9 +364,16 @@ impl<Tab> DockArea<'_, Tab> {
             debug_assert!(!rect.any_nan() && rect.is_finite());
             let rect = expand_to_pixel(rect, pixels_per_point);
 
+            // A subtree of `n` collapsed leaves stacks `n` tab bars with `n - 1` separators
+            // between them; the half separator is the one straddling `border_y` itself.
+            let collapsed_height = |leaf_count: i32| {
+                leaf_count as f32 * style.tab_bar.height
+                    + (leaf_count as f32 - 0.5) * style.separator.width
+            };
+
             if left_collapsed {
                 // EITHER only left collapsed OR left and right both collapsed
-                let border_y = rect.min.y + (left_collapsed_count as f32) * style.tab_bar.height;
+                let border_y = rect.min.y + collapsed_height(left_collapsed_count);
                 let left_separator_border = map_to_pixel(
                     border_y - style.separator.width * 0.5,
                     pixels_per_point,
@@ -387,7 +394,7 @@ impl<Tab> DockArea<'_, Tab> {
                 self.dock_state[path.right_node()].set_rect(right);
             } else {
                 // Only right collapsed
-                let border_y = rect.max.y - (right_collapsed_count as f32) * style.tab_bar.height;
+                let border_y = rect.max.y - collapsed_height(right_collapsed_count);
                 let left_separator_border = map_to_pixel(
                     border_y - style.separator.width * 0.5,
                     pixels_per_point,

@@ -11,6 +11,10 @@
   that could be dragged as one junction.
 - `SeparatorStyle::arrow_key_step_distance`: how far a focused separator moves per arrow key press.
 
+### Fixed
+
+- Window heights now account for frame margins, consistent with changes in [emilk/egui#8154](https://github.com/emilk/egui/pull/8154). ([#341](https://github.com/anhosh/egui_dock/issues/341))
+
 ## egui_dock 0.21.1 - 2026/08/06
 
 ### Fixed
