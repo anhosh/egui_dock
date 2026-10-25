@@ -20,7 +20,7 @@ impl egui_dock::TabViewer for TabViewer<'_> {
     type Tab = usize;
 
     fn id(&mut self, tab: &mut Self::Tab) -> egui::Id {
-        egui::Id::new(tab)
+        egui::Id::unique(tab)
     }
 
     fn title(&mut self, tab: &mut Self::Tab) -> egui::WidgetText {

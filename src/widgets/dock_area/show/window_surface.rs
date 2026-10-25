@@ -19,7 +19,7 @@ impl<Tab> DockArea<'_, Tab> {
         fade_style: Option<(&Style, f32, SurfaceIndex)>,
     ) {
         // Construct egui window
-        let id = format!("window {surf_index:?}").into();
+        let id = egui::Id::unique(format!("window {surf_index:?}"));
         let bounds = self.window_bounds.unwrap();
         let open = true;
         let window = self
