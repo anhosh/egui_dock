@@ -73,6 +73,7 @@ struct MyContext {
     show_close_buttons: bool,
     show_add_buttons: bool,
     draggable_tabs: bool,
+    draggable_separator_junctions: bool,
     show_tab_name_on_hover: bool,
     allowed_splits: AllowedSplits,
     show_leaf_close_all: bool,
@@ -157,6 +158,10 @@ impl MyContext {
             ui.checkbox(&mut self.show_close_buttons, "Show close buttons");
             ui.checkbox(&mut self.show_add_buttons, "Show add buttons");
             ui.checkbox(&mut self.draggable_tabs, "Draggable tabs");
+            ui.checkbox(
+                &mut self.draggable_separator_junctions,
+                "Draggable separator junctions",
+            );
             ui.checkbox(&mut self.show_tab_name_on_hover, "Show tab name on hover");
             ui.checkbox(
                 &mut self.show_leaf_close_all,
@@ -236,6 +241,20 @@ impl MyContext {
 
                 ui.label("Offset limit:");
                 ui.add(Slider::new(&mut style.separator.extra, 1.0..=300.0));
+                ui.end_row();
+
+                ui.label("Junction merge distance:");
+                ui.add(Slider::new(
+                    &mut style.separator.junction_merge_distance,
+                    0.0..=30.0,
+                ));
+                ui.end_row();
+
+                ui.label("Arrow key step distance:");
+                ui.add(Slider::new(
+                    &mut style.separator.arrow_key_step_distance,
+                    1.0..=64.0,
+                ));
                 ui.end_row();
 
                 ui.label("Idle color:");
@@ -565,6 +584,7 @@ impl Default for MyApp {
             show_close_buttons: true,
             show_add_buttons: false,
             draggable_tabs: true,
+            draggable_separator_junctions: true,
             show_tab_name_on_hover: false,
             allowed_splits: AllowedSplits::default(),
         };
@@ -613,6 +633,7 @@ impl eframe::App for MyApp {
             .show_close_buttons(self.context.show_close_buttons)
             .show_add_buttons(self.context.show_add_buttons)
             .draggable_tabs(self.context.draggable_tabs)
+            .draggable_separator_junctions(self.context.draggable_separator_junctions)
             .show_tab_name_on_hover(self.context.show_tab_name_on_hover)
             .allowed_splits(self.context.allowed_splits)
             .show_leaf_close_all_buttons(self.context.show_leaf_close_all)

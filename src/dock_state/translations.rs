@@ -10,6 +10,8 @@ pub struct Translations {
     pub tab_context_menu: TabContextMenuTranslations,
     /// Text overrides for buttons in windows.
     pub leaf: LeafTranslations,
+    /// Screen-reader labels for buttons without visible text.
+    pub accessibility: AccessibilityTranslations,
 }
 
 /// Specifies text in buttons displayed in the context menu displayed upon right-clicking on a tab.
@@ -68,12 +70,36 @@ pub struct LeafTranslations {
     pub minimize_button_modifier_menu_hint: String,
 }
 
+/// Specifies labels reported to screen readers (via AccessKit) for buttons that
+/// have no visible text.
+#[derive(Clone, Debug)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(default)
+)]
+pub struct AccessibilityTranslations {
+    /// Label of the close tab button.
+    pub close_button: String,
+    /// Label of the add tab button.
+    pub add_button: String,
+    /// Label of the close all tabs button.
+    pub close_all_button: String,
+    /// Label of the collapse button of a collapsed leaf.
+    pub collapse_button: String,
+    /// Label of the expand button of a collapsed leaf.
+    pub expand_button: String,
+    /// Label of the expand button of a collapsed window.
+    pub expand_window_button: String,
+}
+
 impl Translations {
     /// Default English translations.
     pub fn english() -> Self {
         Self {
             tab_context_menu: TabContextMenuTranslations::english(),
             leaf: LeafTranslations::english(),
+            accessibility: AccessibilityTranslations::english(),
         }
     }
 }
@@ -131,6 +157,26 @@ impl LeafTranslations {
 }
 
 impl Default for LeafTranslations {
+    fn default() -> Self {
+        Self::english()
+    }
+}
+
+impl AccessibilityTranslations {
+    /// Default English translations.
+    pub fn english() -> Self {
+        Self {
+            close_button: String::from("Close tab"),
+            add_button: String::from("Add tab"),
+            close_all_button: String::from("Close all tabs"),
+            collapse_button: String::from("Collapse leaf"),
+            expand_button: String::from("Expand leaf"),
+            expand_window_button: String::from("Expand window"),
+        }
+    }
+}
+
+impl Default for AccessibilityTranslations {
     fn default() -> Self {
         Self::english()
     }
