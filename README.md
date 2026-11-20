@@ -1,6 +1,6 @@
 # `egui_dock`: docking system for [egui](https://github.com/emilk/egui)
 
-[![github](https://img.shields.io/badge/github-Adanos020/egui_dock-8da0cb?logo=github)](https://github.com/Adanos020/egui_dock)
+[![github](https://img.shields.io/badge/github-anhosh/egui_dock-8da0cb?logo=github)](https://github.com/anhosh/egui_dock)
 [![crates.io](https://img.shields.io/crates/v/egui_dock)](https://crates.io/crates/egui_dock)
 [![docs.rs](https://img.shields.io/docsrs/egui_dock)](https://docs.rs/egui_dock/)
 [![egui_version](https://img.shields.io/badge/egui-0.37-blue)](https://github.com/emilk/egui)
