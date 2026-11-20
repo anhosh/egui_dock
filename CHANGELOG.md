@@ -1,6 +1,10 @@
 # egui_dock changelog
 
-## Unreleased
+## egui_dock 0.20.0 - 2026/11/20
+
+### Breaking changes
+
+- Upgraded to egui 0.27. ([#354](https://github.com/anhosh/egui_dock/pull/354))
 
 ### Added
 
@@ -14,7 +18,8 @@
 
 ### Fixed
 
-- Window heights now account for frame margins, consistent with changes in [emilk/egui#8154](https://github.com/emilk/egui/pull/8154). ([#341](https://github.com/anhosh/egui_dock/issues/341))
+- Window heights now account for frame margins, consistent with changes
+  in [emilk/egui#8154](https://github.com/emilk/egui/pull/8154). ([#341](https://github.com/anhosh/egui_dock/issues/341))
 
 ## egui_dock 0.21.1 - 2026/08/06
 
@@ -300,8 +305,7 @@
 
 ### Fixed
 
-- `filter_map_tabs` sometimes deleting nodes when it shouldn't.
-  ([#230](https://github.com/Adanos020/egui_dock/pull/230))
+- `filter_map_tabs` sometimes deleting nodes when it shouldn't. ([#230](https://github.com/Adanos020/egui_dock/pull/230))
 
 ## 0.11.2 - 2024-02-16
 
@@ -388,8 +392,7 @@ From [#225](https://github.com/Adanos020/egui_dock/pull/225):
 ### Fixed
 
 - Deserializing `WindowState` no longer crashes when `screen_rect` contains any `f32::INFINITY` values. Make sure to fix
-  your last serialized app state by setting `screen_rect: null`.
-  ([#198](https://github.com/Adanos020/egui_dock/pull/198))
+  your last serialized app state by setting `screen_rect: null`. ([#198](https://github.com/Adanos020/egui_dock/pull/198))
 
 ## 0.8.1 - 2023-10-04
 
@@ -440,8 +443,7 @@ provide a guide of how to use the library.
 
 - Adjusted the styling of tabs to closer follow the egui default styling.
   ([#139](https://github.com/Adanos020/egui_dock/pull/139))
-- Double-clicking on a separator resets the size of both adjacent nodes.
-  ([#146](https://github.com/Adanos020/egui_dock/pull/146))
+- Double-clicking on a separator resets the size of both adjacent nodes. ([#146](https://github.com/Adanos020/egui_dock/pull/146))
 - Tabs can now only be dragged with the primary pointer button (e.g. left mouse button).
   ([#177](https://github.com/Adanos020/egui_dock/pull/177))
 
@@ -488,12 +490,11 @@ provide a guide of how to use the library.
     - `DockArea::show_window_close_buttons` setting determining if windows should have a close button or not.
     - `DockArea::show_window_collapse_buttons` setting determining if windows should have a collapse button or not.
     - `TabViewer::allowed_in_windows` specifying if a given tab can be shown in a window.
-- `TabViewer::closable` lets individual tabs be closable or not.
-  ([#150](https://github.com/Adanos020/egui_dock/pull/150))
+- `TabViewer::closable` lets individual tabs be closable or not. ([#150](https://github.com/Adanos020/egui_dock/pull/150))
 - `TabViewer::scroll_bars` specifying if horizontal and vertical scrolling is enabled for given tab – replaces
   `DockArea::scroll_area_in_tabs` (see breaking changes). ([#160](https://github.com/Adanos020/egui_dock/pull/160))
-- `Translations` specifying what text will be displayed in some parts of the `DockingArea`, e.g. the tab context menus
-  (defined in `TabContextMenuTranslations`). ([#178](https://github.com/Adanos020/egui_dock/pull/178))
+- `Translations` specifying what text will be displayed in some parts of the `DockingArea`, e.g. the tab context menus (defined in
+  `TabContextMenuTranslations`). ([#178](https://github.com/Adanos020/egui_dock/pull/178))
 
 ### Breaking changes
 
@@ -614,8 +615,7 @@ Removed
     - `scroll_area_in_tabs`
     - `show_tab_name_on_hover`
 - Make tabs scrollable when they overflow ([#116](https://github.com/Adanos020/egui_dock/pull/116))
-- `TabViewer::id` method that allows specifying a custom id for each tab
-  ([#121](https://github.com/Adanos020/egui_dock/pull/121))
+- `TabViewer::id` method that allows specifying a custom id for each tab ([#121](https://github.com/Adanos020/egui_dock/pull/121))
 
 ### Breaking changes
 
@@ -675,10 +675,8 @@ Removed
 
 ### Fixed
 
-- Light mode now works in tabs
-  ([528b892](https://github.com/Adanos020/egui_dock/commit/528b89245928d055dabb00cd9001c22d275f789b))
-- `DockArea::show_inside` no longer obscures previously added elements
-  ([#102](https://github.com/Adanos020/egui_dock/pull/102))
+- Light mode now works in tabs ([528b892](https://github.com/Adanos020/egui_dock/commit/528b89245928d055dabb00cd9001c22d275f789b))
+- `DockArea::show_inside` no longer obscures previously added elements ([#102](https://github.com/Adanos020/egui_dock/pull/102))
 - Splitter drag now behaves like egui `DragValue` ([#103](https://github.com/Adanos020/egui_dock/pull/103))
 
 ## 0.4.0 - 2023-02-09
