@@ -70,7 +70,7 @@ impl TreeComponent {
 }
 
 fn make_overlay_painter(ui: &Ui) -> Painter {
-    let id = Id::new("overlay");
+    let id = Id::unique("overlay");
     let layer_id = LayerId::new(Order::Foreground, id);
     ui.ctx().layer_painter(layer_id)
 }

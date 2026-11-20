@@ -117,8 +117,13 @@ impl WindowState {
         self.minimized
     }
 
-    //the 'static in this case means that the `open` field is always `None`
-    pub(crate) fn create_window(&mut self, id: Id, bounds: Rect) -> egui::Window<'static> {
+    // the 'static in this case means that the `open` field is always `None`
+    pub(crate) fn create_window(
+        &mut self,
+        id: Id,
+        bounds: Rect,
+        frame_height: f32,
+    ) -> egui::Window<'static> {
         let new = self.new;
         let mut window_constructor = egui::Window::new("")
             .id(id)
@@ -133,6 +138,7 @@ impl WindowState {
         }
         // Reset the height of the window if it is now expanded
         if new && let Some(height) = self.expanded_height() {
+            let height = height + frame_height;
             window_constructor = window_constructor.max_height(height).min_height(height);
         }
         self.new = false;
