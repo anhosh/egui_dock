@@ -1,6 +1,6 @@
 use egui::{
-    Align, Color32, CornerRadius, CursorIcon, Frame, Layout, Rect, Response, RichText, Sense,
-    Shape, Stroke, Ui, UiBuilder, Vec2, WidgetInfo, WidgetText, WidgetType, vec2,
+    Align, Color32, CornerRadius, CursorIcon, Frame, Layout, Rect, Response, RichText, Role, Sense,
+    Shape, Stroke, Ui, UiBuilder, Vec2, WidgetInfo, WidgetText, vec2,
 };
 
 use crate::{
@@ -18,7 +18,8 @@ impl<Tab> DockArea<'_, Tab> {
         state: &mut State,
         fade_style: Option<(&Style, f32, SurfaceIndex)>,
     ) {
-        let id = format!("window {surf_index:?}").into();
+        // Construct egui window
+        let id = egui::Id::unique(format!("window {surf_index:?}"));
         let bounds = self.window_bounds.unwrap();
         let open = true;
 
@@ -181,7 +182,7 @@ impl<Tab> DockArea<'_, Tab> {
         response = response.on_hover_cursor(CursorIcon::PointingHand);
         response.widget_info(|| {
             WidgetInfo::labeled(
-                WidgetType::Button,
+                Role::Button,
                 ui.is_enabled(),
                 &self
                     .dock_state

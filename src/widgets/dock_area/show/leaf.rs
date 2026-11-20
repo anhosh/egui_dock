@@ -2,8 +2,8 @@ use std::ops::RangeInclusive;
 
 use egui::{
     Align, Align2, Button, Color32, CornerRadius, CursorIcon, Frame, Id, Key, LayerId, Layout,
-    NumExt, Order, Popup, PopupCloseBehavior, Rect, Response, ScrollArea, Sense, Shape, Stroke,
-    StrokeKind, TextStyle, Ui, UiBuilder, Vec2, WidgetInfo, WidgetText, WidgetType, accesskit,
+    NumExt, Order, Popup, PopupCloseBehavior, Rect, Response, Role, ScrollArea, Sense, Shape,
+    Stroke, StrokeKind, TextStyle, Ui, UiBuilder, Vec2, WidgetInfo, WidgetText, accesskit,
     emath::TSTransform, epaint::TextShape, lerp, pos2, vec2,
 };
 
@@ -140,7 +140,7 @@ impl<Tab> DockArea<'_, Tab> {
         let btn_response = ui.interact(btn_rect, btn_id, Sense::click());
         btn_response.widget_info(|| {
             WidgetInfo::labeled(
-                WidgetType::Button,
+                Role::Button,
                 ui.is_enabled(),
                 &self
                     .dock_state
@@ -637,7 +637,7 @@ impl<Tab> DockArea<'_, Tab> {
         response = response.on_hover_cursor(CursorIcon::PointingHand);
         response.widget_info(|| {
             WidgetInfo::labeled(
-                WidgetType::Button,
+                Role::Button,
                 ui.is_enabled(),
                 &self.dock_state.translations.accessibility.add_button,
             )
@@ -675,7 +675,7 @@ impl<Tab> DockArea<'_, Tab> {
             ),
         );
 
-        let popup_id = ui.id().with("tab_add_popup");
+        let popup_id = ui.scope_id().with("tab_add_popup");
         if self.show_add_popup {
             Popup::from_toggle_button_response(&response)
                 .id(popup_id)
@@ -728,7 +728,7 @@ impl<Tab> DockArea<'_, Tab> {
             } else {
                 (&translations.accessibility.close_all_button, !disabled)
             };
-            WidgetInfo::labeled(WidgetType::Button, ui.is_enabled() && enabled, label)
+            WidgetInfo::labeled(Role::Button, ui.is_enabled() && enabled, label)
         });
 
         let mut stroke_color = if disabled {
@@ -877,7 +877,7 @@ impl<Tab> DockArea<'_, Tab> {
             } else {
                 &translations.accessibility.collapse_button
             };
-            WidgetInfo::labeled(WidgetType::Button, ui.is_enabled(), label)
+            WidgetInfo::labeled(Role::Button, ui.is_enabled(), label)
         });
 
         let color = if response.hovered() || response.has_focus() {
@@ -1149,9 +1149,8 @@ impl<Tab> DockArea<'_, Tab> {
 
         let (_, tab_rect) = ui.allocate_space(vec2(tab_width, ui.available_height()));
         let mut response = ui.interact(tab_rect, id, Sense::click_and_drag());
-        response.widget_info(|| {
-            WidgetInfo::selected(WidgetType::Button, ui.is_enabled(), active, &title)
-        });
+        response
+            .widget_info(|| WidgetInfo::selected(Role::Button, ui.is_enabled(), active, &title));
         ui.ctx().accesskit_node_builder(response.id, |node| {
             node.set_role(accesskit::Role::Tab);
             node.set_selected(active);
@@ -1225,7 +1224,7 @@ impl<Tab> DockArea<'_, Tab> {
                 .on_hover_cursor(CursorIcon::PointingHand);
             close_response.widget_info(|| {
                 WidgetInfo::labeled(
-                    WidgetType::Button,
+                    Role::Button,
                     ui.is_enabled(),
                     &self.dock_state.translations.accessibility.close_button,
                 )
@@ -1319,7 +1318,7 @@ impl<Tab> DockArea<'_, Tab> {
                     self.id.with((path.node, "node")),
                     Sense::drag(),
                 );
-                scroll_bar_handle_response.widget_info(|| WidgetInfo::new(WidgetType::ScrollBar));
+                scroll_bar_handle_response.widget_info(|| WidgetInfo::new(Role::ScrollBar));
 
                 // Coefficient to apply to input displacements so that we move the scroll by the correct amount.
                 let points_to_scroll_coefficient =
@@ -1520,8 +1519,8 @@ mod tests {
 
     #[test]
     fn tab_body_ids_differ_between_surfaces() {
-        let dock_area_id = Id::new("dock-area");
-        let tab_id = Id::new("same-tab");
+        let dock_area_id = Id::unique("dock-area");
+        let tab_id = Id::unique("same-tab");
         let node = NodeIndex::root();
 
         let main = NodePath {

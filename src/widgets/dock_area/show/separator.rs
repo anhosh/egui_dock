@@ -1,7 +1,7 @@
 use duplicate::duplicate;
 use egui::{
-    CornerRadius, CursorIcon, EventFilter, Key, Rect, Response, Sense, Ui, Vec2, WidgetInfo,
-    WidgetType, accesskit, vec2,
+    CornerRadius, CursorIcon, EventFilter, Key, Rect, Response, Role, Sense, Ui, Vec2, WidgetInfo,
+    accesskit, vec2,
 };
 use paste::paste;
 
@@ -223,7 +223,7 @@ impl<Tab> DockArea<'_, Tab> {
                 let response = ui.allocate_rect(interact_rect, Sense::click_and_drag())
                     .on_hover_and_drag_cursor(paste!{ CursorIcon::[<Resize orientation>]});
 
-                response.widget_info(|| WidgetInfo::new(WidgetType::ResizeHandle));
+                response.widget_info(|| WidgetInfo::new(Role::Splitter));
 
                 let arrow_key_offset = arrow_key_offset(ui, &response, style.separator.arrow_key_step_distance);
 
@@ -341,7 +341,7 @@ impl<Tab> DockArea<'_, Tab> {
             let response = ui
                 .interact(interact_rect, id, Sense::CLICK | Sense::DRAG)
                 .on_hover_and_drag_cursor(CursorIcon::Move);
-            response.widget_info(|| WidgetInfo::new(WidgetType::ResizeHandle));
+            response.widget_info(|| WidgetInfo::new(Role::Splitter));
             ui.ctx()
                 .accesskit_node_builder(response.id, |node| node.set_hidden());
 

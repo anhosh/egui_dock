@@ -21,6 +21,7 @@ jobs:
       - uses: mitchellh/vouch/action/check-issue@baeb3bf7c7e6c12d6e33bab3870b7e936580a934 # unreleased main
         with:
           issue-number: ${{ github.event.issue.number }}
+          require-vouch: false
           auto-close: true
           auto-lock: true
           template-file: .github/issue-unvouched-message
